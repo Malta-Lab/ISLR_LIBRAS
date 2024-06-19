@@ -1,0 +1,150 @@
+import os
+import torchvision
+from torch.utils.data import Dataset
+torchvision.disable_beta_transforms_warning()
+from torchvision.io import read_video
+import torch
+from sklearn.model_selection import train_test_split
+import pandas as pd
+
+
+class VideoDataset(Dataset):
+    def __init__(self, 
+                 root_dir, 
+                 transform=None, 
+                 extensions=["pt"], 
+                 split="train",
+                 seed=42,
+                 specific_classes=None,
+                 n_samples_per_class=None,
+                 with_path=False):
+        """
+        Args:
+            root_dir (str): Directory with all the video files organized in subfolders per class.
+            transform (callable, optional): Optional transform to be applied on a sample.
+            extensions (list): List of allowed video file extensions.
+        """
+        self.root_dir = root_dir
+        self.transform = transform
+        self.extensions = extensions
+        self.seed = seed
+        self.split = split
+        self.with_path = with_path
+        self.classes, self.class_to_idx = self._find_classes(self.root_dir)
+        
+        self.samples = self._make_dataset(
+            self.root_dir, self.class_to_idx, self.extensions
+        )
+        
+        if n_samples_per_class:
+            # TODO: fix number of videos for testing (one for each sign)
+            self.samples = self.__set_number_of_videos_per_class(n_samples_per_class)
+            
+        self.samples = self.__get_split_by_sign(self.split)
+        
+        if specific_classes:
+            self.samples = [sample for sample in self.samples if self.classes[sample[1]] in specific_classes]
+
+            self.classes = specific_classes
+            self.class_to_idx = {self.classes[i]: i for i in range(len(self.classes))}
+            
+            
+        
+
+    def _find_classes(self, dir):
+        """Finds the class folders in a dataset."""
+        classes = [d.name for d in os.scandir(dir) if d.is_dir()]
+        classes.sort()
+        class_to_idx = {classes[i]: i for i in range(len(classes))}
+        return classes, class_to_idx
+
+    def _make_dataset(self, dir, class_to_idx, extensions):
+        """Creates the dataset by scanning for video files."""
+        instances = []
+        dir = os.path.expanduser(dir)
+        for target_class in sorted(class_to_idx.keys()):
+            class_index = class_to_idx[target_class]
+            target_dir = os.path.join(dir, target_class)
+            if not os.path.isdir(target_dir):
+                continue
+            for root, _, fnames in sorted(os.walk(target_dir)):
+                for fname in sorted(fnames):
+                    if any(fname.lower().endswith(ext) for ext in extensions):
+                        path = os.path.join(root, fname)
+                        item = (path, class_index)
+                        instances.append(item)
+        return instances
+    
+    def __get_split(self, split):
+        train, test = train_test_split(self.samples, test_size=0.25, random_state=self.seed)
+        
+        if split == "train":
+            return train
+        elif split == "test":
+            return test
+        else:
+            raise ValueError(f"Invalid split: {split}")
+        
+    def __get_split_by_sign(self, split):
+        train_samples = []
+        test_samples = []
+
+        sign_groups = {}
+        for path, class_index in self.samples:
+            sign = self.classes[class_index]
+            if sign not in sign_groups:
+                sign_groups[sign] = []
+            sign_groups[sign].append((path, class_index))
+
+        for sign, group_samples in sign_groups.items():
+            train, test = train_test_split(group_samples, test_size=0.25, random_state=self.seed)     
+                   
+            train_samples.extend(train)
+            test_samples.extend(test)
+
+        if split == "train":
+            return train_samples
+        elif split == "test":
+            return test_samples
+        else:
+            raise ValueError(f"Invalid split: {split}")
+        
+    
+    def __set_number_of_videos_per_class(self, n_samples_per_class):
+        samples = []
+        for class_index in range(len(self.classes)):
+            samples.extend([sample for sample in self.samples if sample[1] == class_index][:n_samples_per_class])
+        return samples
+
+    def __len__(self):
+        return len(self.samples)
+
+    def __getitem__(self, index):
+        path, target = self.samples[index]
+        video = torch.load(path)
+        
+        if self.transform is not None:
+            video = self.transform(video)
+            
+        return video, target, path if self.with_path else video, target
+
+
+class TestDatasets(Dataset):
+    def __init__(self, dir, transforms=None):
+        self.df = pd.read_csv(dir)
+        self.transforms = transforms
+        
+    def __len__(self):
+        return len(self.df)
+    
+    def __getitem__(self, idx):
+        row = self.df.iloc[idx]
+        if '[' in row['path']:
+            video = read_video(row['path'][2:-2])[0]
+        else:
+            video = read_video(row['path'])[0]
+        video = video.float()
+        video = video.permute(3,0, 1, 2)        
+        if self.transforms:
+            video = self.transforms(video)
+        return video, row['label'], row['dictionary'], row['path']

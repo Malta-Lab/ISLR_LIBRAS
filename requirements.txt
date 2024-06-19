@@ -1,0 +1,7 @@
+pytorchvideo
+transformers
+evaluate
+gradio
+torchvision
+torch
+lightning

@@ -1,0 +1,1 @@
+CUDA_VISIBLE_DEVICES=3,4 python train.py -ptm "google/vivit-b-16x2-kinetics400" --gpus 2 -sched "plateau" -lr 0.0001 --data_path "../MINDS_tensors_32" -bs 4

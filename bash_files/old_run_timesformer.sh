@@ -1,0 +1,1 @@
+CUDA_VISIBLE_DEVICES=1,2 python train.py -ptm "facebook/timesformer-base-finetuned-k400" --gpus 2 -sched "plateau" -lr 0.0001 -bs 8

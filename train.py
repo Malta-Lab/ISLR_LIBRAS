@@ -70,8 +70,7 @@ if __name__ == "__main__":
                                 sample_frames=args.frames,
                                 random_sample=False),
     split="test",
-    specific_classes=args.specific_classes,
-    n_samples_per_class=args.n_samples_per_class)
+    specific_classes=args.specific_classes)
     
     
     

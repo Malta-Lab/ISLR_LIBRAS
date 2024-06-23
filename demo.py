@@ -9,6 +9,7 @@ from torchvision.transforms.v2 import Resize, Normalize, UniformTemporalSubsampl
 from models import VideoModel
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+# device = torch.device("cpu")
 
 classes = ['America',
  'Amarelo',
@@ -48,7 +49,7 @@ def preprocess(video_as_mp4):
 
 def load_model():
     model = VideoModel.load_from_checkpoint(
-        "/mnt/E-SSD/BRACIS-2024/old_lightning_logs/sample_16_from_32_transforms/version_1/checkpoints/best_model.ckpt"
+        "/mnt/E-SSD/BRACIS-2024/lightning_logs/timesformer_sample_from_32/version_0/checkpoints/best_model.ckpt"
     )
     model.eval()
     model = model.to(device)
@@ -67,7 +68,7 @@ def video_identity(video):
         print(output)
     output = torch.nn.functional.softmax(output.logits, dim=1)
     print(output)
-    topk_prob, topk_label = torch.topk(output, 3)
+    topk_prob, topk_label = torch.topk(output, 5)
     print(topk_prob, topk_label)
     probs = topk_prob.cpu().numpy().flatten()
     labels = topk_label.cpu().numpy().flatten()
@@ -80,7 +81,7 @@ demo = gr.Interface(
     video_identity,
     gr.Video(),
     gr.Label(
-        num_top_classes=3,
+        num_top_classes=5,
     ),
 )
 

@@ -1,0 +1,25 @@
+args:
+  batch_size: 16
+  data_path: ../MINDS_tensors_32
+  exp_name: transforms_ablation_random_horizontal_flip
+  frames: 16
+  gpus: 2
+  learning_rate: 0.0001
+  max_epochs: 1000
+  n_samples_per_class: null
+  optimizer: adamw
+  pretrained_model: MCG-NJU/videomae-base-finetuned-kinetics
+  random_sample: false
+  scheduler: plateau
+  seed: 42
+  specific_classes: null
+  transforms:
+  - normalize
+  - random_horizontal_flip
+  workers: 4
+cache_dir: ./cache
+lr: 0.0001
+model_name: MCG-NJU/videomae-base-finetuned-kinetics
+num_classes: 20
+optimizer: adamw
+scheduler: plateau

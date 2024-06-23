@@ -36,11 +36,10 @@ class VideoDataset(Dataset):
             self.root_dir, self.class_to_idx, self.extensions
         )
         
-        if n_samples_per_class:
-            # TODO: fix number of videos for testing (one for each sign)
-            self.samples = self.__set_number_of_videos_per_class(n_samples_per_class)
-            
         self.samples = self.__get_split_by_sign(self.split)
+        
+        if n_samples_per_class:
+            self.samples = self.__set_number_of_videos_per_class(n_samples_per_class)
         
         if specific_classes:
             self.samples = [sample for sample in self.samples if self.classes[sample[1]] in specific_classes]
@@ -112,8 +111,11 @@ class VideoDataset(Dataset):
     
     def __set_number_of_videos_per_class(self, n_samples_per_class):
         samples = []
+        
+        # order the samples, to always ensure the same order
+        self.samples = sorted(self.samples, key=lambda x: x[0])
         for class_index in range(len(self.classes)):
-            samples.extend([sample for sample in self.samples if sample[1] == class_index][:n_samples_per_class])
+            samples.extend([sample for sample in self.samples if sample[1] == class_index][0:n_samples_per_class])
         return samples
 
     def __len__(self):

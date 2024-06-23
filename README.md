@@ -2,6 +2,7 @@
 - Conferir se a atualização do numero de intancias se manteve
 - Listar exemplos errados
 - Não pegar pré-treinado o modelo
+- Inserir torchmetrics no script de avaliacao
 - Ablations:
     - Conferir o efeito das transformações
     - Melhor modelo e ver quanto o tamanho do dataset influencia

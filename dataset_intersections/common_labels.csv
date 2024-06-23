@@ -51,9 +51,9 @@ Conhecer,['/mnt/E-SSD/LIBRAS_datasets/datasets/ufsc/videos/CONHECER.mp4'],UFSC
 Conhecer,['/mnt/E-SSD/LIBRAS_datasets/datasets/ufsc_v2/videos/CONHECER.mp4'],UFSC_V2
 Conhecer,['/mnt/E-SSD/LIBRAS_datasets/datasets/spread_the_sign/videos/Conhecer.mp4'],SpreadTheSign
 Conhecer,['/mnt/E-SSD/LIBRAS_datasets/datasets/acessibilidade_3/videos/conhecerSm_Prog001.mp4'],Acessibilidades3
-Espelho_1,[/mnt/E-SSD/dataset-ufpe/Espelho_1.mp4'],UFPE
-Espelho_2,[/mnt/E-SSD/dataset-ufpe/Espelho_2.mp4'],UFPE
-Espelho_3,[/mnt/E-SSD/dataset-ufpe/Espelho_3.mp4'],UFPE
+Espelho_1,['/mnt/E-SSD/dataset-ufpe/Espelho_1.mp4'],UFPE
+Espelho_2,['/mnt/E-SSD/dataset-ufpe/Espelho_2.mp4'],UFPE
+Espelho_3,['/mnt/E-SSD/dataset-ufpe/Espelho_3.mp4'],UFPE
 Filho_1,['/mnt/E-SSD/dataset-ufpe/Filho_1.mp4'],UFPE
 Filho_2,['/mnt/E-SSD/dataset-ufpe/Filho_2.mp4'],UFPE
 Filho_3,['/mnt/E-SSD/dataset-ufpe/Filho_3.mp4'],UFPE

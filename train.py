@@ -33,6 +33,7 @@ if __name__ == "__main__":
     parser.add_argument('--random_sample', action='store_true')
     parser.add_argument('-w', '--workers', type=int, default=4)
     parser.add_argument('--n_samples_per_class', type=int, default=None)
+    parser.add_argument('--no_pretrain', action='store_true')
     
     args = parser.parse_args()
     

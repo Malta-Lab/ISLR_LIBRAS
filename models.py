@@ -1,7 +1,7 @@
 import lightning as L
-from transformers import AutoModelForVideoClassification, AutoImageProcessor
+from transformers import AutoModelForVideoClassification, AutoConfig
 import torch.optim as optim
-from torchmetrics import Accuracy, F1Score, ConfusionMatrix
+from torchmetrics import Accuracy, F1Score
 
 class VideoModel(L.LightningModule):
     def __init__(self, model_name, 
@@ -22,22 +22,24 @@ class VideoModel(L.LightningModule):
         self.args = args
         
         # Load the model
-        
-        self.model = AutoModelForVideoClassification.from_pretrained(
-            model_name,
-            num_labels=num_classes,
-            cache_dir=cache_dir,
-            ignore_mismatched_sizes=True,
-        )
+        if self.args.get('no_pretrain', False):
+            self.model = AutoModelForVideoClassification.from_config(
+                AutoConfig.from_pretrained(model_name, num_labels=num_classes, local_files_only=True)
+            )
+        else:
+            self.model = AutoModelForVideoClassification.from_pretrained(
+                model_name,
+                num_labels=num_classes,
+                cache_dir=cache_dir,
+                ignore_mismatched_sizes=True,
+            )
         		
 		# metrics
         self.train_acc = Accuracy(task='multiclass', num_classes=num_classes, average='macro')
         self.f1_train = F1Score(task='multiclass', num_classes=num_classes, average='macro')
-        # self.cm_train = ConfusionMatrix(task="multiclass", num_classes=num_classes)
 
         self.val_acc = Accuracy(task='multiclass', num_classes=num_classes, average='macro')
         self.f1_val = F1Score(task='multiclass', num_classes=num_classes, average='macro')
-        # self.cm_val = ConfusionMatrix(task="multiclass", num_classes=num_classes)
         
         self.save_hyperparameters()
   
@@ -53,12 +55,10 @@ class VideoModel(L.LightningModule):
         
         self.train_acc(outputs.logits, y)
         self.f1_train(outputs.logits, y)
-        # self.cm_train(outputs.logits, y)
         
         self.log('train_loss', loss, sync_dist=True)
         self.log('train_acc', self.train_acc, sync_dist=True, on_step=False, on_epoch=True)
         self.log('f1_train', self.f1_train, sync_dist=True, on_step=False, on_epoch=True)
-        # self.log('cm_train', self.cm_train, sync_dist=True, on_step=False, on_epoch=True)
         
         return loss
     
@@ -70,12 +70,10 @@ class VideoModel(L.LightningModule):
         
         self.val_acc(outputs.logits, y)
         self.f1_val(outputs.logits, y)
-        # self.cm_val(outputs.logits, y)
         
         self.log('val_loss', loss, sync_dist=True)
         self.log('val_acc', self.val_acc, sync_dist=True, on_step=False, on_epoch=True)
         self.log('f1_val', self.f1_val, sync_dist=True, on_step=False, on_epoch=True)
-        # self.log('cm_val', self.cm_val, sync_dist=True, on_step=False, on_epoch=True)
         
         return loss
     

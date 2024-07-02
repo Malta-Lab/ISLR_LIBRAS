@@ -2,6 +2,7 @@ import lightning as L
 from transformers import AutoModelForVideoClassification, AutoConfig
 import torch.optim as optim
 from torchmetrics import Accuracy, F1Score
+import torch
 
 class VideoModel(L.LightningModule):
     def __init__(self, model_name, 
@@ -26,6 +27,12 @@ class VideoModel(L.LightningModule):
             self.model = AutoModelForVideoClassification.from_config(
                 AutoConfig.from_pretrained(model_name, num_labels=num_classes, local_files_only=True)
             )
+        elif self.args.get('pretrained', None):
+            print("="*40)
+            print("="*15, "Finetuning model", "="*15)
+            self.load_from_checkpoint(self.args['pretrained'])
+            self.model.model.classifier = torch.nn.Linear(self.model.model.classifier.in_features, num_classes)
+            print("="*40)
         else:
             self.model = AutoModelForVideoClassification.from_pretrained(
                 model_name,
@@ -33,6 +40,18 @@ class VideoModel(L.LightningModule):
                 cache_dir=cache_dir,
                 ignore_mismatched_sizes=True,
             )
+            
+        if self.args.get("freeze", False):
+            try: 
+                for param in self.model.parameters():
+                    param.requires_grad = False
+                for param in self.model.classifier.parameters():
+                    param.requires_grad = True
+            except:
+                for param in self.model.model.parameters():
+                    param.requires_grad = False
+                for param in self.model.model.classifier.parameters():
+                    param.requires_grad = True
         		
 		# metrics
         self.train_acc = Accuracy(task='multiclass', num_classes=num_classes, average='macro')

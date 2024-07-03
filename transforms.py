@@ -9,22 +9,18 @@ from torchvision.transforms.v2 import (
     Normalize,
     RandomPerspective,
     UniformTemporalSubsample,
+    AugMix
 )
 import torch
-
-from pytorchvideo.transforms import (
-    AugMix)
 
 class RandomTemporalSubsample:
     def __init__(self, num_frames):
         self.num_frames = num_frames
     
-    def __call__(self, video):
-        # selec random frames form the video, but follow chronological order
-        # If i want to retrieve two frames, I would like to get the following possible outputs: [0,1], [0,2], [2,4], [0,3], [1,4]
-        
+    def __call__(self, video):        
         if video.shape[0] < self.num_frames:
             return video
+        
         indices = torch.randint(0, video.shape[0], (self.num_frames,))
         indices = torch.sort(indices).values
         return video[indices]
@@ -52,6 +48,7 @@ def build_transforms(
     resize_dims=(224, 224),
     sample_frames=16,
     random_sample=False,
+    dataset_name="minds",
 ):
     """ "
     - transforms_list: list of strings with the names of the transforms to be applied
@@ -86,7 +83,11 @@ def build_transforms(
         transforms.append(GaussianBlur(kernel_size=3))
         transforms_list.remove('gaussian_blur')
         
-    if "normalize" in transforms_list:
+    if "normalize" in transforms_list and dataset_name == "slovo":
+        transforms.append(Normalize((143.2916, 133.0764, 128.7852), (62.1262, 64.2752, 62.8632)))
+        transforms_list.remove("normalize")
+
+    if "normalize" in transforms_list and dataset_name == "minds":
         transforms.append(Normalize((118.4939, 118.4997, 118.5007), (57.2457, 57.2454, 57.2461)))
         transforms_list.remove("normalize")
         

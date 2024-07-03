@@ -57,6 +57,7 @@ if __name__ == "__main__":
         resize_dims=(224, 224),
         sample_frames=args.frames,
         random_sample=args.random_sample,
+        dataset_name=args.dataset,
     )
 
     dataset_factory = DatasetFactory()
@@ -79,6 +80,7 @@ if __name__ == "__main__":
             resize_dims=(224, 224),
             sample_frames=args.frames,
             random_sample=False,
+            dataset_name=args.dataset,
         ),
         split="test",
         specific_classes=args.specific_classes,

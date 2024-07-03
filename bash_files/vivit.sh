@@ -1,0 +1,3 @@
+CUDA_VISIBLE_DEVICES=3,4 python train.py -ptm "google/vivit-b-16x2-kinetics400" --gpus 2 -sched "plateau" -lr 0.0001 --data_path "../MINDS_tensors_32" --exp_name "vivit_sample_from_32" -t "color_jitter" "random_perspective"  "random_horizontal_flip" "gaussian_blur" "normalize" --frames 32 -bs 4
+
+CUDA_VISIBLE_DEVICES=3,4 python train.py -ptm "google/vivit-b-16x2-kinetics400" --gpus 2 -sched "plateau" -lr 0.0001 --data_path "../MINDS_tensors_all_frames" --exp_name "vivit_sample_from_all" -t "color_jitter" "random_perspective"  "random_horizontal_flip" "gaussian_blur" "normalize" --frames 32 --random_sample -bs 4

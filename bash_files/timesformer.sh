@@ -1,0 +1,3 @@
+CUDA_VISIBLE_DEVICES=1,2 python train.py -ptm "facebook/timesformer-base-finetuned-k400" --gpus 2 -sched "plateau" -lr 0.0001 --data_path "../MINDS_tensors_32" --exp_name "timesformer_sample_from_32" -t "color_jitter" "random_perspective"  "random_horizontal_flip" "gaussian_blur" "normalize" --frames 16 --random_sample -bs 8
+
+CUDA_VISIBLE_DEVICES=1,2 python train.py -ptm "facebook/timesformer-base-finetuned-k400" --gpus 2 -sched "plateau" -lr 0.0001 --data_path "../MINDS_tensors_all_frames" --exp_name "timesformer_sample_from_all" -t "color_jitter" "random_perspective"  "random_horizontal_flip" "gaussian_blur" "normalize" --frames 16 --random_sample -bs 8

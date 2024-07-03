@@ -1,0 +1,26 @@
+args:
+  batch_size: 8
+  data_path: ../MINDS_tensors_32
+  exp_name: transforms_ablation_gaussian_blur
+  frames: 16
+  gpus: 2
+  learning_rate: 0.0001
+  max_epochs: 1000
+  n_samples_per_class: null
+  no_pretrain: false
+  optimizer: adamw
+  pretrained_model: facebook/timesformer-base-finetuned-k400
+  random_sample: false
+  scheduler: plateau
+  seed: 42
+  specific_classes: null
+  transforms:
+  - normalize
+  - gaussian_blur
+  workers: 4
+cache_dir: ./cache
+lr: 0.0001
+model_name: facebook/timesformer-base-finetuned-k400
+num_classes: 20
+optimizer: adamw
+scheduler: plateau

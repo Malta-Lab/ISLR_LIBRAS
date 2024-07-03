@@ -225,10 +225,7 @@ class SlovoDataset(Dataset):
 
     def __getitem__(self, idx):
         instance = self.annotations.iloc[idx]
-        video = read_video(self.dir / self.split / f"{instance['attachment_id']}.mp4")[
-            0
-        ]
-        video = video.permute(3, 0, 1, 2)
+        video = torch.load(self.dir / self.split / f"{instance['attachment_id']}.pt")
 
         if self.transforms:
             video = self.transforms(video)

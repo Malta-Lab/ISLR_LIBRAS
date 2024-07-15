@@ -3,6 +3,7 @@ from transformers import AutoModelForVideoClassification, AutoConfig
 import torch.optim as optim
 from torchmetrics import Accuracy, F1Score
 import torch
+from pytorchvideo.transforms import MixUp
 
 class VideoModel(L.LightningModule):
     def __init__(self, model_name, 
@@ -52,7 +53,11 @@ class VideoModel(L.LightningModule):
                     param.requires_grad = False
                 for param in self.model.model.classifier.parameters():
                     param.requires_grad = True
-        		
+        
+        if self.args.get("mixup", False):
+            alpha = self.args.get("mixup_alpha", 1)
+            self.mixup = MixUp(alpha=alpha, num_classes=num_classes)
+
 		# metrics
         self.train_acc = Accuracy(task='multiclass', num_classes=num_classes, average='macro')
         self.f1_train = F1Score(task='multiclass', num_classes=num_classes, average='macro')
@@ -61,16 +66,20 @@ class VideoModel(L.LightningModule):
         self.f1_val = F1Score(task='multiclass', num_classes=num_classes, average='macro')
         
         self.save_hyperparameters()
-  
-          
+
     def forward(self, x):
         return self.model(x)
         
-        
     def training_step(self, batch, batch_idx):
-        x,y = batch[0], batch[1]
-        outputs = self.model(x, labels=y)
-        loss = outputs.loss
+        x, y = batch[0], batch[1]
+        
+        if self.args.get("mixup", False):
+            x, y_ = self.mixup(x, y)
+            outputs = self.model(x)
+            loss = torch.nn.functional.cross_entropy(outputs.logits, y_)
+        else:
+            outputs = self.model(x, labels=y)
+            loss = outputs.loss
         
         self.train_acc(outputs.logits, y)
         self.f1_train(outputs.logits, y)
@@ -80,8 +89,7 @@ class VideoModel(L.LightningModule):
         self.log('f1_train', self.f1_train, sync_dist=True, on_step=False, on_epoch=True)
         
         return loss
-    
-    
+
     def validation_step(self, batch, batch_idx):
         x,y = batch[0], batch[1]
         outputs = self.model(x, labels=y)
@@ -118,4 +126,3 @@ class VideoModel(L.LightningModule):
     
     def on_train_epoch_end(self):
         self.train_acc.compute()
-        

@@ -1,0 +1,30 @@
+args:
+  batch_size: 16
+  data_path: ../slovo_tensors_32
+  dataset: slovo
+  exp_name: slovo_pretrain_seed_24
+  finetune: null
+  frames: 16
+  freeze: false
+  gpus: 2
+  learning_rate: 0.0001
+  max_epochs: 1000
+  mixup: false
+  n_samples_per_class: null
+  no_pretrain: false
+  optimizer: adamw
+  pretrained_model: MCG-NJU/videomae-base-finetuned-kinetics
+  random_sample: true
+  scheduler: plateau
+  seed: 24
+  specific_classes: null
+  transforms:
+  - normalize
+  transforms_parameters: null
+  workers: 4
+cache_dir: ./cache
+lr: 0.0001
+model_name: MCG-NJU/videomae-base-finetuned-kinetics
+num_classes: 1001
+optimizer: adamw
+scheduler: plateau

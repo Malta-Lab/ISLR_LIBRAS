@@ -28,6 +28,13 @@ def create_labels2idx(dataset):
         
     return label2idx
 
+def preprocess_parameters(x, name):
+    x = x.replace(name, '')
+    x = x.split('_')
+    parameters = x[1:]
+    parameters = [float(p) for p in parameters]
+    return parameters
+
 def set_seed(seed=42):
 
     random.seed(seed)

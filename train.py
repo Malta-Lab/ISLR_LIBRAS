@@ -2,7 +2,8 @@ import lightning as L
 from lightning.pytorch.callbacks import ModelCheckpoint, EarlyStopping
 from lightning.pytorch.loggers import TensorBoardLogger
 from dataset import DatasetFactory
-from transforms import build_transforms
+# from transforms import build_transforms
+from transforms_v2 import Transforms
 from torch.utils.data import DataLoader
 from models import VideoModel
 import torch
@@ -15,28 +16,38 @@ torch.set_float32_matmul_precision("medium")
 
 if __name__ == "__main__":
     parser = ArgumentParser()
+    # experiment
+    parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument("--exp_name", type=str, default=None)
+    parser.add_argument("-w", "--workers", type=int, default=4)
+    parser.add_argument("--no_pretrain", action="store_true")
+    parser.add_argument("--finetune", type=str, default=None)
+    parser.add_argument('--freeze', action='store_true')
+    
+    # model and training
     parser.add_argument(
         "-ptm", "--pretrained_model", type=str, default="MCG-NJU/videomae-base"
     )
-    parser.add_argument("--data_path", type=str, default="../MINDS_tensors")
     parser.add_argument("-bs", "--batch_size", type=int, default=16)
     parser.add_argument("-epochs", "--max_epochs", type=int, default=1000)
     parser.add_argument("-gpus", "--gpus", type=int, default=1)
     parser.add_argument("-lr", "--learning_rate", type=float, default=1e-5)
     parser.add_argument("-opt", "--optimizer", type=str, default="adamw")
     parser.add_argument("-sched", "--scheduler", type=str, default=None)
+    
+    # data 
+    parser.add_argument("--data_path", type=str, default="../MINDS_tensors")
     parser.add_argument("--specific_classes", type=str, nargs="+", default=None)
-    parser.add_argument("--seed", type=int, default=42)
-    parser.add_argument("--exp_name", type=str, default=None)
+    parser.add_argument("--dataset", type=str, default="minds")
+    parser.add_argument("--n_samples_per_class", type=int, default=None)
+    
+    # transforms
     parser.add_argument("-t", "--transforms", type=str, nargs="+", default=None)
     parser.add_argument("--frames", type=int, default=16)
     parser.add_argument("--random_sample", action="store_true")
-    parser.add_argument("-w", "--workers", type=int, default=4)
-    parser.add_argument("--n_samples_per_class", type=int, default=None)
-    parser.add_argument("--no_pretrain", action="store_true")
-    parser.add_argument("--dataset", type=str, default="minds")
-    parser.add_argument("--finetune", type=str, default=None)
-    parser.add_argument('--freeze', action='store_true')
+    parser.add_argument("--mixup", action="store_true")
+    parser.add_argument("-tp", "--transforms_parameters", type=str, nargs="+", default=None)
+    parser.add_argument("--mixup_alpha", type=float, default=1.0)
 
     args = parser.parse_args()
 
@@ -52,12 +63,20 @@ if __name__ == "__main__":
     else:
         EXP_NAME = args.pretrained_model.replace("/", "-")
 
-    transforms = build_transforms(
+    # transforms = build_transforms(
+    #     args.transforms.copy(),
+    #     resize_dims=(224, 224),
+    #     sample_frames=args.frames,
+    #     random_sample=args.random_sample,
+    #     dataset_name=args.dataset,
+    # )
+    transforms = Transforms(
         args.transforms.copy(),
         resize_dims=(224, 224),
         sample_frames=args.frames,
         random_sample=args.random_sample,
         dataset_name=args.dataset,
+        transforms_parameters=args.transforms_parameters,
     )
 
     dataset_factory = DatasetFactory()
@@ -75,7 +94,7 @@ if __name__ == "__main__":
         name=args.dataset,
         root_dir=args.data_path,
         extensions=["pt"],
-        transform=build_transforms(
+        transform=Transforms(#build_transforms(
             ["normalize"],
             resize_dims=(224, 224),
             sample_frames=args.frames,
@@ -104,7 +123,7 @@ if __name__ == "__main__":
         mode="min",
     )
 
-    early_stop_callback = EarlyStopping("val_loss", patience=50)
+    early_stop_callback = EarlyStopping("val_loss", patience=35)
 
     logger = TensorBoardLogger(save_dir="lightning_logs", name=EXP_NAME)
 

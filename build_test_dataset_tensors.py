@@ -50,5 +50,6 @@ def main():
 
     print(f'Saved all tensors to {output_dir}')
 
+
 if __name__ == '__main__':
     main()

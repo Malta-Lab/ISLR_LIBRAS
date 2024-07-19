@@ -29,7 +29,7 @@ if __name__ == "__main__":
         "-ptm", "--pretrained_model", type=str, default="MCG-NJU/videomae-base"
     )
     parser.add_argument("-bs", "--batch_size", type=int, default=16)
-    parser.add_argument("-epochs", "--max_epochs", type=int, default=1000)
+    parser.add_argument("-epochs", "--max_epochs", type=int, default=200)
     parser.add_argument("-gpus", "--gpus", type=int, default=1)
     parser.add_argument("-lr", "--learning_rate", type=float, default=1e-5)
     parser.add_argument("-opt", "--optimizer", type=str, default="adamw")
@@ -123,7 +123,7 @@ if __name__ == "__main__":
         mode="min",
     )
 
-    early_stop_callback = EarlyStopping("val_loss", patience=35)
+    early_stop_callback = EarlyStopping("val_loss", patience=30)
 
     logger = TensorBoardLogger(save_dir="lightning_logs", name=EXP_NAME)
 

@@ -28,10 +28,10 @@ class VideoModel(L.LightningModule):
             self.model = AutoModelForVideoClassification.from_config(
                 AutoConfig.from_pretrained(model_name, num_labels=num_classes, local_files_only=True)
             )
-        elif self.args.get('pretrained', None):
+        elif self.args.get('finetune', None):
             print("="*40)
             print("="*15, "Finetuning model", "="*15)
-            self.load_from_checkpoint(self.args['pretrained'])
+            self.load_from_checkpoint(self.args['finetune'])
             self.model.model.classifier = torch.nn.Linear(self.model.model.classifier.in_features, num_classes)
             print("="*40)
         else:

@@ -3,7 +3,7 @@
 
 SEEDS_FILE="./seeds.txt"
 
-# Define array of color jitter values
+# Define array of color jitter values (all values are the same for all options of color jitter)
 color_jitters=("0.05" "0.1" "0.15" "0.2" "0.25" "0.3" "0.35" "0.4" "0.45" "0.5")
 
 # Read each line from the seeds file
@@ -15,7 +15,7 @@ do
         # Check if both best.ckpt and last.ckpt files exist in the version_X/checkpoints directories
         both_ckpt_files_exist=false
         for dir in ../backup_logs/LIBRAS-BRACIS-2024/lightning_logs/lightning_logs/videomae_kinetics_color_jitter_${cj}_${seed}/version_*/checkpoints; do
-            if [ -f "$dir/best.ckpt" ] && [ -f "$dir/last.ckpt" ]; then
+            if [ -f "$dir/best_model.ckpt" ] && [ -f "$dir/last.ckpt" ]; then
                 both_ckpt_files_exist=true
                 break
             fi

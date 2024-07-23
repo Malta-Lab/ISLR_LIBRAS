@@ -4,3 +4,4 @@ experiments.ipynb
 *checkpoints/
 mussi.ipynb
 flagged
+lightning_logs

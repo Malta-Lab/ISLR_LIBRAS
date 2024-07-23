@@ -4,7 +4,7 @@ import subprocess
 base_folder = '/B/zamin/MINDS/Sinalizador{:02d}/Canon/*.mp4'
 remote_user = 'mussi'
 remote_host = 'malta.lad.pucrs.br'
-remote_path = '/mnt/F-SSD/MINDS'
+remote_path = '/mnt/F-SSD/BRACIS-2024/dataset_intersections/utils'
 password = '19920117'  # Replace with the actual password
 
 # local_path = base_folder#.format(i)

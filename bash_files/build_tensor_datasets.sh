@@ -11,5 +11,5 @@ do
     echo "Processing class: $class"
     #nohup python build_tensor_dataset.py --data_dir "$data_dir" -n "$class" > logs/"$class".log &
     # nohup python build_tensor_dataset.py --data_dir "$data_dir" -n "$class" --frames 32 > logs/"$class".log &
-    nohup python build_tensor_dataset.py --data_dir "$data_dir" -n "$class" --not_sample > logs/"$class".log &
+    python build_tensor_dataset.py --data_dir "$data_dir" --frames 32 -n "$class" 
 done

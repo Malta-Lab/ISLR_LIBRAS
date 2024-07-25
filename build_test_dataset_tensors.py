@@ -9,7 +9,7 @@ from tqdm import tqdm
 
 def main():
     
-    csv_path = Path('./dataset_intersections/matched_labels.csv')
+    csv_path = Path('/mnt/F-SSD/mussi/libras/matched_labels.csv')
     sample_frames = 32
     output_dir = '../test_dataset_tensors_32'
     df = pd.read_csv(csv_path)

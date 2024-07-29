@@ -14,7 +14,7 @@ do
     do
         # Check if both best.ckpt and last.ckpt files exist in the version_X/checkpoints directories
         both_ckpt_files_exist=false
-        for dir in ../backup_logs/LIBRAS-BRACIS-2024/lightning_logs/lightning_logs/videomae_kinetics_random_rotation_${rr}_${seed}/version_*/checkpoints; do
+        for dir in ./lightning_logs/random_rotation/videomae_kinetics_random_rotation_${rr}_${seed}/version_*/checkpoints; do
             if [ -f "$dir/best_model.ckpt" ] && [ -f "$dir/last.ckpt" ]; then
                 both_ckpt_files_exist=true
                 break

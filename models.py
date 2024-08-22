@@ -115,10 +115,15 @@ class VideoModel(L.LightningModule):
             raise ValueError('Invalid optimizer')
 
         if self.scheduler:
+            
             if self.scheduler == 'plateau':
                 sched = optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.1, patience=5, verbose=True)
             elif self.scheduler == 'step':
                 sched = optim.lr_scheduler.StepLR(optimizer, step_size=50, gamma=0.1)
+            elif self.scheduler == 'linearlr':
+                sched = optim.lr_scheduler.LinearLR(optimizer, start_factor=0.333, end_factor=1, total_iters=100)
+            elif self.scheduler == 'cosine':
+                sched = optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=100, eta_min=0)
 
             return {'optimizer': optimizer, 'lr_scheduler': sched, 'monitor': 'val_loss' }
 

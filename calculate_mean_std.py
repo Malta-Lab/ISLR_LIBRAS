@@ -1,87 +1,60 @@
-import cv2
-import numpy as np
 import os
+import torch
+import numpy as np
 from tqdm import tqdm
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import argparse
 
-def process_video(video_path):
-    cap = cv2.VideoCapture(video_path)
+def process_tensor(tensor_path):
+    # Load the tensor file
+    tensor = torch.load(tensor_path)
+    tensor = tensor.float()
 
-    if not cap.isOpened():
-        print(f"Error opening video file {video_path}")
-        return None
+    # Calculate the sum and sum of squares for the tensor across spatial dimensions (height and width) for each channel
+    tensor_sum = tensor.sum(dim=[0, 2, 3]).numpy()  # Sum across frames, height, and width
+    tensor_sum_squared = (tensor ** 2).sum(dim=[0, 2, 3]).numpy()  # Sum of squares across frames, height, and width
+    num_elements = tensor.size(0) * tensor.size(2) * tensor.size(3)  # Number of elements per channel
 
-    frame_means = []
-    frame_stds = []
+    return tensor_sum, tensor_sum_squared, num_elements
 
-    total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+def calculate_mean_std(tensor_folder_path, num_workers):
+    total_sum = np.zeros(3)
+    total_sum_squared = np.zeros(3)
+    total_elements = 0
 
-    for _ in range(total_frames):
-        ret, frame = cap.read()
-        if not ret:
-            print(f"Error reading frame in video file {video_path}")
-            break
-
-        # Convert frame from BGR (OpenCV default) to RGB
-        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-
-        # Calculate mean and std for the frame
-        frame_mean = np.mean(frame, axis=(0, 1))
-        frame_std = np.std(frame, axis=(0, 1))
-
-        frame_means.append(frame_mean)
-        frame_stds.append(frame_std)
-
-    cap.release()
-
-    if frame_means and frame_stds:
-        video_mean = np.mean(frame_means, axis=0)
-        video_std = np.mean(frame_stds, axis=0)
-        return video_mean, video_std
-    else:
-        print(f"No valid frames found in video file {video_path}")
-        return None
-
-def calculate_mean_std(video_folder_path, num_workers):
-    means = []
-    stds = []
-
-    video_files = [os.path.join(video_folder_path, f) for f in os.listdir(video_folder_path) if f.endswith('.mp4')]
+    tensor_files = [os.path.join(tensor_folder_path, f) for f in os.listdir(tensor_folder_path) if f.endswith('.pt')]
 
     with ThreadPoolExecutor(max_workers=num_workers) as executor:
-        futures = {executor.submit(process_video, video_file): video_file for video_file in video_files}
+        futures = {executor.submit(process_tensor, tensor_file): tensor_file for tensor_file in tensor_files}
 
-        for future in tqdm(as_completed(futures), total=len(futures), desc="Processing videos"):
+        for future in tqdm(as_completed(futures), total=len(futures), desc="Processing tensors"):
             result = future.result()
             if result:
-                video_mean, video_std = result
-                means.append(video_mean)
-                stds.append(video_std)
+                tensor_sum, tensor_sum_squared, num_elements = result
+                total_sum += tensor_sum
+                total_sum_squared += tensor_sum_squared
+                total_elements += num_elements
 
-    if means and stds:
-        overall_mean = np.mean(means, axis=0)
-        overall_std = np.mean(stds, axis=0)
-    else:
-        overall_mean = np.array([np.nan, np.nan, np.nan])
-        overall_std = np.array([np.nan, np.nan, np.nan])
+    # Calculate mean and std for each channel
+    mean = total_sum / total_elements
+    std = np.sqrt(total_sum_squared / total_elements - mean ** 2)
 
-    return overall_mean, overall_std
+    return tuple(mean), tuple(std)
 
 def save_stats_to_file(mean, std, output_file):
     with open(output_file, 'w') as f:
-        f.write(f'Mean: {mean.tolist()}\n')
-        f.write(f'Std: {std.tolist()}\n')
+        f.write(f'Mean: {mean}\n')
+        f.write(f'Std: {std}\n')
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Calculate mean and std for each RGB channel from a dataset of .mp4 videos.")
-    parser.add_argument("video_folder_path", type=str, help="Path to the folder containing .mp4 video files.")
+    parser = argparse.ArgumentParser(description="Calculate mean and std for each RGB channel from a dataset of .pt tensor files.")
+    parser.add_argument("tensor_folder_path", type=str, help="Path to the folder containing .pt tensor files.")
     parser.add_argument("--num_workers", type=int, default=16, help="Number of worker threads.")
-    parser.add_argument("--output_file", type=str, default="slovo_dataset_mean_std.txt", help="Output file to save the mean and std values.")
+    parser.add_argument("--output_file", type=str, default="dataset_mean_std.txt", help="Output file to save the mean and std values.")
     
     args = parser.parse_args()
     
-    mean, std = calculate_mean_std(args.video_folder_path, args.num_workers)
+    mean, std = calculate_mean_std(args.tensor_folder_path, args.num_workers)
     
     save_stats_to_file(mean, std, args.output_file)
     

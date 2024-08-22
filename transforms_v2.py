@@ -138,6 +138,10 @@ class Transforms:
             return Normalize((118.4939, 118.4997, 118.5007), (57.2457, 57.2454, 57.2461))
         if self.dataset_name == "slovo":
             return Normalize((143.2916, 133.0764, 128.7852), (62.1262, 64.2752, 62.8632))
+        if self.dataset_name == "test":
+            return Normalize((110.0589, 104.0907, 119.5019), (53.9639, 47.5653, 51.7986))
+        if self.dataset_name == "wlasl":
+            return Normalize((108.7010, 109.7283, 103.2872), (60.1688, 54.0494, 43.9858))
         
     def __call__(self, video):
         return self.transforms(video)

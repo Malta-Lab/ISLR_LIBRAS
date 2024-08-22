@@ -1,1 +1,0 @@
-CUDA_VISIBLE_DEVICES=1,2 python train.py -ptm "MCG-NJU/videomae-base-finetuned-kinetics" --gpus 2 -sched "plateau" -lr 0.0001 --data_path "../dataset_slovo" --exp_name "slovo_pretrain" -t "color_jitter" "random_perspective"  "random_horizontal_flip" "gaussian_blur" "normalize" --frames 16 --random_sample --dataset "slovo"

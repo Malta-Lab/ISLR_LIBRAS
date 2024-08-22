@@ -1,38 +1,63 @@
 import os
+import argparse
 import torch
 from utils import set_seed
-from dataset import VideoDataset, TestDatasets
-from transforms import build_transforms
+from dataset_v2 import DatasetFactory
+from transforms_v2 import Transforms
 from models import VideoModel
 from tqdm import tqdm
-from sklearn.metrics import (
-    accuracy_score,
-    f1_score,
-    precision_score,
-    recall_score,
-    confusion_matrix,
-)
+from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score, confusion_matrix
 import pandas as pd
+import glob
 
+# Set up argument parsing
+parser = argparse.ArgumentParser(description="Evaluate models and calculate metrics.")
+parser.add_argument("--dataset_mode", type=str, default="minds_val", 
+                    choices=["val", "test", "slovo_val", "wlasl_val", "minds_val"],
+                    help="Specify the dataset mode for evaluation. val=")
+parser.add_argument("--base_dir", type=str, required=True, 
+                    help="Base directory containing the experiment logs and models.")
+parser.add_argument("-cuda", "--cuda_device", type=str, default="0", 
+                    help="Specify which CUDA device to use.")
+parser.add_argument("-bs", "--batch_size", type=int, default=1, 
+                    help="Batch size for DataLoader.")
+parser.add_argument("-w", "--num_workers", type=int, default=8, 
+                    help="Number of workers for DataLoader.")
+args = parser.parse_args()
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "0"
-
+# Set the CUDA device
+os.environ["CUDA_VISIBLE_DEVICES"] = args.cuda_device
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+# Set seed for reproducibility
 set_seed(42)
 
-EXPS = {
-    exp_name: f"lightning_logs/{exp_name}/version_0/checkpoints/best_model.ckpt"
-    for exp_name in os.listdir("lightning_logs")
-    if os.path.isdir(f"lightning_logs/{exp_name}")
-}
+# Determine if it's a single or multiple experiment setup
+def determine_experiments(base_dir):
+    if os.path.isdir(base_dir):
+        version_dirs = glob.glob(os.path.join(base_dir, "version_*"))
+        if len(version_dirs) == 1:
+            best_model_path = os.path.join(version_dirs[0], "checkpoints/best_model.ckpt")
+            return {os.path.basename(base_dir): best_model_path}, True
+        else:
+            exps = {}
+            for exp_name in os.listdir(base_dir):
+                exp_dir = os.path.join(base_dir, exp_name)
+                if os.path.isdir(exp_dir):
+                    version_dirs = glob.glob(os.path.join(exp_dir, "version_*"))
+                    if version_dirs:
+                        best_model_path = os.path.join(version_dirs[0], "checkpoints/best_model.ckpt")
+                        exps[exp_name] = best_model_path
+            return exps, False
+    else:
+        raise ValueError(f"The directory {base_dir} does not exist or is not a directory.")
 
+EXPS, single_experiment = determine_experiments(args.base_dir)
 
 class ResultAnalyzer:
     def __init__(self, true, preds):
-        self.true = [i[1] for i in true]
-        self.paths = [i[0] for i in true]
-        self.preds = preds
-        self.errors = []
+        self.true = [int(label) if isinstance(label, str) else label for label in true]
+        self.preds = [int(pred) if isinstance(pred, str) else pred for pred in preds]
 
     def compute_metrics(self):
         accuracy = accuracy_score(self.true, self.preds)
@@ -40,49 +65,31 @@ class ResultAnalyzer:
         precision = precision_score(self.true, self.preds, average="macro")
         recall = recall_score(self.true, self.preds, average="macro")
         cm = confusion_matrix(self.true, self.preds)
-
         return accuracy, f1, precision, recall, cm
 
-    def get_errors(self):
-        for i in range(len(self.true)):
-            if self.true[i] != self.preds[i]:
-                self.errors.append(self.paths[i])
-        return self.errors
+def load_dataset_v2(mode="val"):
+    dataset_name = mode.split('_')[0]  # Extract base dataset name
+    split = "val" if mode.endswith("_val") else "train"  # Correctly set the split to "val" for validation
 
+    transform_params = {
+        "resize_dims": (224, 224),
+        "sample_frames": 16,
+        "random_sample": False,
+        "dataset_name": dataset_name
+    }
 
-def count_videos_by_class():
-    for root, _, files in os.walk("../MINDS_tensors"):
-        print(f"{root} has {len(files)} tensors")
+    # Always include 'normalize' transform for validation/test based on dataset
+    transforms_list = ["normalize"]
 
-
-def load_dataset(
-    mode="val",
-    dir="../MINDS_tensors_all_frames",
-    model_name=None,
-):
-    if mode == "val":
-        return VideoDataset(
-            root_dir=dir,
-            extensions=["pt"],
-            transform=build_transforms(
-                ["normalize"],
-                resize_dims=(224, 224),
-                sample_frames=16 if "vivit" not in model_name else 32,
-                random_sample=False,
-            ),
-            split="test",
-            with_path=True,
-        )
-    else:
-        return TestDatasets(
-            "./dataset_intersections/common_labels.csv",
-            transforms=build_transforms(
-                (["normalize"]),
-                resize_dims=(224, 224),
-                sample_frames=16 if "vivit" not in model_name else 32,
-                random_sample=False,
-            ),
-        )
+    return DatasetFactory()(
+        name=dataset_name,
+        root_dir=f"/mnt/G-SSD/BRACIS/{dataset_name.upper()}_tensors_32",
+        transform=Transforms(
+            transforms_list=transforms_list,
+            **transform_params
+        ),
+        split=split  # Ensure the correct split is passed
+    )
 
 
 def load_model(model_path):
@@ -91,130 +98,63 @@ def load_model(model_path):
     model = model.to(device)
     return model
 
+all_results = {}
 
-# run every experiment for all the three datasets and get the values of the metrics
-all_results = {e: [] for e in EXPS.keys()}
+# Process each experiment (or the single experiment)
+for exp_name, model_path in EXPS.items():
+    print(f"Processing Experiment: {exp_name}")
+    model = load_model(model_path)
 
-for k, v in EXPS.items():
-    print(f"Experiment: {k}")
-    model = load_model(v)
-    exp_results = []
+    # Load dataset
+    dataset = load_dataset_v2(args.dataset_mode)
+    loader = torch.utils.data.DataLoader(dataset, batch_size=args.batch_size, shuffle=False, num_workers=args.num_workers)
 
-    val_all_frames = load_dataset("val", "../MINDS_tensors_all_frames", model_name=v)
-    val_32_frames = load_dataset("val", "../MINDS_tensors_32", model_name=v)
-    test_dataset = load_dataset("test", model_name=v)
-    loader_val_all_frames = torch.utils.data.DataLoader(
-        val_all_frames,
-        batch_size=1,
-        shuffle=False,
-        num_workers=32,
-    )
-    loader_val_32_frames = torch.utils.data.DataLoader(
-        val_32_frames,
-        batch_size=1,
-        shuffle=False,
-        num_workers=32,
-    )
-    loader_test = torch.utils.data.DataLoader(
-        test_dataset,
-        batch_size=1,
-        shuffle=False,
-        num_workers=1,
-    )
+    predictions = []
+    true_labels = []
 
-    loaders = [loader_val_all_frames, loader_val_32_frames, loader_test]
-
+    # Evaluate model
     with torch.no_grad():
-        for loader in loaders:
-            dataset_results = []
-            for video, label, origin, path in tqdm(loader):
-                video = video.to(device)
-                output = model(video)
-                pred = torch.argmax(output.logits, dim=1)
-                dataset_results.append(pred.item())
-            exp_results.append(dataset_results)
-    all_results[k] = exp_results
+        for data in tqdm(loader):
+            video, label = data if len(data) >= 2 else (None, None)
+            if video is None:
+                raise TypeError(f"Unexpected data type returned from dataset. Expected tuple, got {type(data)}.")
+            
+            video = video.to(device)
+            output = model(video)
+            pred = torch.argmax(output.logits, dim=1).item()
+            predictions.append(pred)
+            true_labels.append(label.item())
 
+    # Analyze results
+    analyzer = ResultAnalyzer(true_labels, predictions)
+    acc, f1, precision, recall, cm = analyzer.compute_metrics()
 
-labels_all_frames = val_all_frames.samples
-labels_test = test_dataset.df["label"].values
-dictionary_test = test_dataset.df["dictionary"].values
-paths_test = test_dataset.df["path"].values
-
-
-final_csv = {}
-for k, v in all_results.items():
-    print(k, v)
-    ra_32 = ResultAnalyzer(labels_all_frames, v[0])
-    ra_all = ResultAnalyzer(labels_all_frames, v[1])
-
-    acc_32, f1_32, precision_32, recall_32, cm_32 = ra_32.compute_metrics()
-    acc_all, f1_all, precision_all, recall_all, cm_all = ra_all.compute_metrics()
-    errors_32 = ra_32.get_errors()
-    errors_all = ra_all.get_errors()
-
-    final_csv[k] = {
-        "model_name": k,
-        "acc_32": acc_32,
-        "f1_32": f1_32,
-        "precision_32": precision_32,
-        "recall_32": recall_32,
-        "cm_32": cm_32,
-        "errors_32": errors_32,
-        "acc_all": acc_all,
-        "f1_all": f1_all,
-        "precision_all": precision_all,
-        "recall_all": recall_all,
-        "cm_all": cm_all,
-        "errors_all": errors_all,
+    metrics_data = {
+        "model_name": exp_name,
+        f"acc_{args.dataset_mode}": acc,
+        f"f1_{args.dataset_mode}": f1,
+        f"precision_{args.dataset_mode}": precision,
+        f"recall_{args.dataset_mode}": recall,
+        f"cm_{args.dataset_mode}": cm.tolist()
     }
 
-# save dataframe to csv
-df = pd.DataFrame.from_dict(final_csv, orient="index")
-df.to_csv("results/val_results.csv")
+    # Save results to CSV inside the experiment folder
+    exp_dir = args.base_dir if single_experiment else os.path.join(args.base_dir, exp_name)
+    metrics_df = pd.DataFrame([metrics_data])
+    metrics_df.to_csv(os.path.join(exp_dir, f"{args.dataset_mode}_metrics_results.csv"), index=False)
 
-true_test = [t.split("_")[0] for t in labels_test]
-true_test = [
-    t.replace("á", "a")
-    .replace("ã", "a")
-    .replace("é", "e")
-    .replace("í", "i")
-    .replace("ó", "o")
-    .replace("ú", "u")
-    .replace("ç", "c")
-    for t in true_test
-]
-true_test = [val_all_frames.class_to_idx[t] for t in true_test]
+    all_results[exp_name] = metrics_data
 
-test_dataset.df["number_label"] = true_test
+# Calculate mean and std for each metric across all experiments
+mean_std_data = {}
+metrics_keys = [f"acc_{args.dataset_mode}", f"f1_{args.dataset_mode}", f"precision_{args.dataset_mode}", f"recall_{args.dataset_mode}"]
 
-true_test = [(path, t) for path, t in zip(paths_test, true_test)]
+for key in metrics_keys:
+    values = [res[key] for res in all_results.values()]
+    mean = sum(values) / len(values) if values else 0
+    std = (sum((x - mean) ** 2 for x in values) / len(values)) ** 0.5 if values else 0
+    mean_std_data[f"{key}_mean"] = mean
+    mean_std_data[f"{key}_std"] = std
 
-final_csv = {}
-
-for k, v in all_results.items():
-    print(k, v)
-    ra_test = ResultAnalyzer(true_test, v[2])
-
-    acc, f1, precision, recall, cm = ra_test.compute_metrics()
-    errors = ra_test.get_errors()
-
-    final_csv[k] = {
-        "model_name": k,
-        "acc": acc,
-        "f1": f1,
-        "precision": precision,
-        "recall": recall,
-        "cm": cm,
-        "errors": errors,
-    }
-
-# save dataframe to csv
-df = pd.DataFrame.from_dict(final_csv, orient="index")
-df.to_csv("results/results_test.csv")
-
-
-for k, v in all_results.items():
-    test_dataset.df[k] = v[2]
-
-test_dataset.df.to_csv("results/test_results_model_by_column.csv")
+mean_std_df = pd.DataFrame([mean_std_data])
+mean_std_df.to_csv(os.path.join(args.base_dir, f"{args.dataset_mode}_mean_std_results.csv"), index=False)

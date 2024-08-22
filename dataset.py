@@ -1,4 +1,5 @@
 import os
+import ast
 import torchvision
 from torch.utils.data import Dataset
 from pathlib import Path
@@ -176,26 +177,38 @@ class VideoDataset(Dataset):
 
         return video, target, path if self.with_path else video, target
 
-
 class TestDatasets(Dataset):
-    def __init__(self, dir, transforms=None):
-        self.df = pd.read_csv(dir)
+    def __init__(self, csv_file, transforms=None):
+        """
+        Args:
+            csv_file (str): Path to the CSV file with columns 'label', 'tensor_path', and 'dictionary'.
+            transforms (callable, optional): Optional transform to be applied on a sample.
+        """
+        self.df = pd.read_csv(csv_file)
         self.transforms = transforms
-
+        self.classes = sorted(self.df["label"].unique())
+        self.class_to_idx = {label: i for i, label in enumerate(self.classes)}
+        self.idx_to_class = {i: label for label, i in self.class_to_idx.items()}
+        
     def __len__(self):
         return len(self.df)
 
     def __getitem__(self, idx):
         row = self.df.iloc[idx]
-        if "[" in row["path"]:
-            video = read_video(row["path"][2:-2])[0]
-        else:
-            video = read_video(row["path"])[0]
-        video = video.float()
-        video = video.permute(3, 0, 1, 2)
+        video_path = row["tensor_path"]
+
+        video_path = ast.literal_eval(video_path)[0]
+
+        video = torch.load(video_path).float()
         if self.transforms:
             video = self.transforms(video)
-        return video, row["label"], row["dictionary"], row["path"]
+
+        label = row["label"]
+        label_idx = self.class_to_idx[label]
+
+        dictionary = row["dictionary"]
+
+        return video, label_idx, dictionary, video_path
 
 
 class SlovoDataset(Dataset):
@@ -216,9 +229,7 @@ class SlovoDataset(Dataset):
     def __len__(self):
         return len(self.annotations)
 
-    def __getlabels(
-        self,
-    ):
+    def __getlabels(self):
         labels = list(self.annotations["text"].unique())
         labels.sort()
         return {label: i for i, label in enumerate(labels)}
@@ -238,13 +249,14 @@ class WLASLDataset(Dataset):
         self.dir = Path(dir)
         self.split = split
         self.transforms = transforms
-        self.annotations = pd.read_json(
-            self.dir / "nslt_2000.json",
-        ).T
+        
+        self.annotations = pd.read_json(self.dir / "nslt_2000.json").T
         self.annotations["id"] = self.annotations.index
         self.annotations.reset_index(drop=True, inplace=True)
         self.annotations["label"] = self.annotations.action.apply(lambda x: x[0])
+
         self.missing = self.__get_missing()
+
         print(len(self.annotations))
         
         # remove missing indexes from annotations
@@ -254,7 +266,7 @@ class WLASLDataset(Dataset):
         if self.split == "train":
             self.annotations = self.annotations[self.annotations["subset"] != "test"]
 
-        else:
+        elif self.split == "val":
             self.annotations = self.annotations[self.annotations["subset"] == "test"]
             
         # for videos with if number length < 5 digits, adds 0s in the beggingin to sum up to 5 digits
@@ -285,11 +297,10 @@ class WLASLDataset(Dataset):
 
     def __getitem__(self, idx):
         instance = self.annotations.iloc[idx]           
-        video = read_video(self.dir / "videos" / f"{instance['id']}.mp4")[0]
-        video = video.permute(3, 0, 1, 2)
-
+        
+        video = torch.load(self.dir / "videos" / f"{instance['id']}.pt")
+        
         if self.transforms:
             video = self.transforms(video)
 
-        return video, instance["label"]   
-        
+        return video, self.labels2idx[instance["label"]]

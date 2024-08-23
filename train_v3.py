@@ -1,9 +1,9 @@
 import lightning as L
 from lightning.pytorch.callbacks import ModelCheckpoint, EarlyStopping
 from lightning.pytorch.loggers import TensorBoardLogger
-from dataset_v2 import DatasetFactory
+from dataset import DatasetFactory
 # from transforms import build_transforms
-from transforms_v2 import Transforms
+from transforms import Transforms
 from torch.utils.data import DataLoader
 from models import VideoModel
 import torch

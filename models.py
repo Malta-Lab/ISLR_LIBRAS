@@ -1,9 +1,11 @@
 import lightning as L
 from transformers import AutoModelForVideoClassification, AutoConfig
 import torch.optim as optim
-from torchmetrics import Accuracy, F1Score
+from torchmetrics import Accuracy, F1Score, Precision, Recall, ConfusionMatrix
 import torch
 from pytorchvideo.transforms import MixUp
+import pandas as pd
+import os
 
 class VideoModel(L.LightningModule):
     def __init__(self, model_name, 
@@ -58,12 +60,15 @@ class VideoModel(L.LightningModule):
             alpha = self.args.get("mixup_alpha", 1)
             self.mixup = MixUp(alpha=alpha, num_classes=num_classes)
 
-		# metrics
+        # Metrics
         self.train_acc = Accuracy(task='multiclass', num_classes=num_classes, average='macro')
         self.f1_train = F1Score(task='multiclass', num_classes=num_classes, average='macro')
 
         self.val_acc = Accuracy(task='multiclass', num_classes=num_classes, average='macro')
         self.f1_val = F1Score(task='multiclass', num_classes=num_classes, average='macro')
+        self.recall = Recall(task='multiclass', num_classes=num_classes, average='macro')
+        self.precision = Precision(task='multiclass', num_classes=num_classes, average='macro')
+        # self.confusionsMatrix = ConfusionMatrix(task='multiclass', num_classes=num_classes, average='macro')
         
         self.save_hyperparameters()
 
@@ -91,16 +96,20 @@ class VideoModel(L.LightningModule):
         return loss
 
     def validation_step(self, batch, batch_idx):
-        x,y = batch[0], batch[1]
+        x, y = batch[0], batch[1]
         outputs = self.model(x, labels=y)
         loss = outputs.loss
         
         self.val_acc(outputs.logits, y)
         self.f1_val(outputs.logits, y)
+        self.recall(outputs.logits, y)
+        self.precision(outputs.logits, y)
         
         self.log('val_loss', loss, sync_dist=True)
         self.log('val_acc', self.val_acc, sync_dist=True, on_step=False, on_epoch=True)
         self.log('f1_val', self.f1_val, sync_dist=True, on_step=False, on_epoch=True)
+        self.log('recall', self.recall, sync_dist=True, on_step=False, on_epoch=True)
+        self.log('precision', self.precision, sync_dist=True, on_step=False, on_epoch=True)
         
         return loss
     
@@ -115,7 +124,6 @@ class VideoModel(L.LightningModule):
             raise ValueError('Invalid optimizer')
 
         if self.scheduler:
-            
             if self.scheduler == 'plateau':
                 sched = optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.1, patience=5, verbose=True)
             elif self.scheduler == 'step':
@@ -131,3 +139,35 @@ class VideoModel(L.LightningModule):
     
     def on_train_epoch_end(self):
         self.train_acc.compute()
+
+    def on_validation_epoch_end(self):
+        
+        val_acc = self.val_acc.compute()
+        f1_val = self.f1_val.compute()
+        recall = self.recall.compute()
+        precision = self.precision.compute()
+        # cm = self.ConfusionMatrix.compute()
+
+        exp_name = self.hparams['args'].get('exp_name', 'experiment')
+        experiment_folder = os.path.join("lightning_logs", exp_name)
+
+        metrics_data = {
+            "model_name": exp_name,
+            "val_acc": val_acc.item(),
+            "f1_val": f1_val.item(),
+            "recall": recall.item(),
+            "precision": precision.item(),
+            # "confusion_matrix": cm.tolist()
+        }
+
+        # Ensure the directory exists
+        os.makedirs(experiment_folder, exist_ok=True)
+
+        # Define the save path within the experiment folder, including the filename
+        save_path = os.path.join(experiment_folder, f"{exp_name}_validation_results.csv")
+
+        # Convert to DataFrame and save to CSV
+        metrics_df = pd.DataFrame([metrics_data])
+        metrics_df.to_csv(save_path, index=False)
+
+        print(f"Validation results saved to {save_path}")

@@ -257,7 +257,7 @@ class WLASLDataset(Dataset):
 
         self.missing = self.__get_missing()
 
-        print(len(self.annotations))
+        # print(len(self.annotations))
         
         # remove missing indexes from annotations
         self.annotations = self.annotations[~self.annotations['id'].isin(self.missing)]
@@ -266,7 +266,7 @@ class WLASLDataset(Dataset):
         if self.split == "train":
             self.annotations = self.annotations[self.annotations["subset"] != "test"]
 
-        elif self.split == "val":
+        else:
             self.annotations = self.annotations[self.annotations["subset"] == "test"]
             
         # for videos with if number length < 5 digits, adds 0s in the beggingin to sum up to 5 digits
@@ -286,6 +286,7 @@ class WLASLDataset(Dataset):
         for filename in self.annotations["id"].values:
             if filename not in files:
                 missing.append(filename)
+
         return missing
     
     def __getlabels(
@@ -293,6 +294,7 @@ class WLASLDataset(Dataset):
     ):
         labels = list(self.annotations["label"].unique())
         labels.sort()
+
         return {label: i for i, label in enumerate(labels)}
 
     def __getitem__(self, idx):

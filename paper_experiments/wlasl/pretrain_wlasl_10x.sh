@@ -16,7 +16,7 @@ do
 
     # Check if both best.ckpt and last.ckpt files exist in the version_X/checkpoints directories
     both_ckpt_files_exist=false
-    for dir in /mnt/G-SSD/BRACIS/BRACIS-2024/lightning_logs/wlasl/WLASL_pretrain_seed_"${seed}"/version_*/checkpoints; do
+    for dir in /mnt/G-SSD/BRACIS/BRACIS-2024/lightning_logs/wlasl/base/WLASL_pretrain_seed_"${seed}"/version_*/checkpoints; do
         if [ -f "$dir/best_model.ckpt" ] && [ -f "$dir/last.ckpt" ]; then
             both_ckpt_files_exist=true
             break
@@ -29,9 +29,10 @@ do
         echo "Running ${experiment_name} $i with seed $seed" | tee -a "$log_file"
 
         # Run the training script
-        CUDA_VISIBLE_DEVICES=4,5 python train_v3.py \
+        CUDA_VISIBLE_DEVICES=3,4,5 python train.py \
             -ptm "MCG-NJU/videomae-base-finetuned-kinetics" \
-            --gpus 2 \
+            -w 16 \
+            --gpus 3 \
             -sched "plateau" \
             -lr 0.0001 \
             --data_path "/mnt/G-SSD/BRACIS/WLASL_tensors_32" \

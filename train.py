@@ -3,7 +3,7 @@ from lightning.pytorch.callbacks import ModelCheckpoint, EarlyStopping
 from lightning.pytorch.loggers import TensorBoardLogger
 from dataset import DatasetFactory
 # from transforms import build_transforms
-from transforms_v2 import Transforms
+from transforms import Transforms
 from torch.utils.data import DataLoader
 from models import VideoModel
 import torch
@@ -54,7 +54,7 @@ if __name__ == "__main__":
     if args.frames != 32 and args.frames != 16:
         raise ValueError("Frames must be 16 or 32")
     if args.frames == 16 and args.pretrained_model == "google/vivit-b-16x2-kinetics400":
-        raise ValueError("Vivit model only supports 32 frames")
+        raise ValueError("Vivit model only supports 32 frames")        
 
     set_seed(args.seed)
 
@@ -131,7 +131,7 @@ if __name__ == "__main__":
     model = VideoModel(
         args.pretrained_model,
         num_classes=len(train_dataset.classes),
-        cache_dir="./cache",
+        cache_dir="/mnt/G-SSD/BRACIS/BRACIS-2024/cache",
         lr=args.learning_rate,
         optimizer=args.optimizer,
         scheduler=args.scheduler,

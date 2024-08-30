@@ -1,5 +1,5 @@
 #!/bin/bash
-# videomae on SLOVO dataset with pre-train on kinetics and color jitter 0.5
+# videomae on WLASL dataset with pre-train on kinetics and color jitter 0.5
 
 seed=42
 
@@ -10,7 +10,7 @@ log_file="./logs/${experiment_name}.log"
 echo "Running ${experiment_name} with seed $seed and color jitter 0.5" | tee -a "$log_file"
 
 # Run the training script
-CUDA_VISIBLE_DEVICES=3 python train_v3.py \
+CUDA_VISIBLE_DEVICES=1 python train.py \
     -ptm "MCG-NJU/videomae-base-finetuned-kinetics" \
     --gpus 1 \
     -sched "plateau" \

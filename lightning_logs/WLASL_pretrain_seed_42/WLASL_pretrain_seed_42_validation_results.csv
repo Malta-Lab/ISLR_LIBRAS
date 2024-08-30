@@ -1,0 +1,2 @@
+model_name,val_acc,f1_val,recall,precision
+MCG-NJU/videomae-base-finetuned-kinetics,0.00016666666488163173,2.5641025786171667e-05,0.00016666666488163173,1.3888889043300878e-05

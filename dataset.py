@@ -261,13 +261,14 @@ class WLASLDataset(Dataset):
         
         # remove missing indexes from annotations
         self.annotations = self.annotations[~self.annotations['id'].isin(self.missing)]
-        print(len(self.annotations))
+        # print(len(self.annotations))
 
         if self.split == "train":
             self.annotations = self.annotations[self.annotations["subset"] != "test"]
-
+            print(f"Train size: {len(self.annotations)}")
         else:
             self.annotations = self.annotations[self.annotations["subset"] == "test"]
+            print(f"Test size: {len(self.annotations)}")
             
         # for videos with if number length < 5 digits, adds 0s in the beggingin to sum up to 5 digits
         self.annotations['id'] = self.annotations['id'].apply(lambda x: f'{x:05}')  

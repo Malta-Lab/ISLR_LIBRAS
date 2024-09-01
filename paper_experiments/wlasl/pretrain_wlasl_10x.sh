@@ -29,10 +29,10 @@ do
         echo "Running ${experiment_name} $i with seed $seed" | tee -a "$log_file"
 
         # Run the training script
-        CUDA_VISIBLE_DEVICES=3,4,5 python train.py \
+        CUDA_VISIBLE_DEVICES=1,3,4,5 python train.py \
             -ptm "MCG-NJU/videomae-base-finetuned-kinetics" \
             -w 16 \
-            --gpus 3 \
+            --gpus 4 \
             -sched "plateau" \
             -lr 0.0001 \
             --data_path "/mnt/G-SSD/BRACIS/WLASL_tensors_32" \

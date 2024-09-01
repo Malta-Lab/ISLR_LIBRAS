@@ -1,0 +1,2 @@
+model_name,val_acc,f1_val,recall,precision
+WLASL_LR_1e-8_42,0.0,0.0,0.0,0.0

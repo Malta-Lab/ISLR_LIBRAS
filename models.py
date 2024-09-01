@@ -125,7 +125,7 @@ class VideoModel(L.LightningModule):
 
         if self.scheduler:
             if self.scheduler == 'plateau':
-                sched = optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.1, patience=5, verbose=True)
+                sched = optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.1, patience=10, verbose=True)
             elif self.scheduler == 'step':
                 sched = optim.lr_scheduler.StepLR(optimizer, step_size=50, gamma=0.1)
             elif self.scheduler == 'linearlr':
@@ -170,4 +170,4 @@ class VideoModel(L.LightningModule):
         metrics_df = pd.DataFrame([metrics_data])
         metrics_df.to_csv(save_path, index=False)
 
-        print(f"Validation results saved to {save_path}")
+        # print(f"Validation results saved to {save_path}")

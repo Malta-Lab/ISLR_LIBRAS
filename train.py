@@ -123,7 +123,7 @@ if __name__ == "__main__":
         mode="min",
     )
 
-    early_stop_callback = EarlyStopping("val_loss", patience=30)
+    early_stop_callback = EarlyStopping("val_loss", patience=50)
 
     logger = TensorBoardLogger(save_dir="lightning_logs", name=EXP_NAME)
 

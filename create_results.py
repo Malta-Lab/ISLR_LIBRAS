@@ -143,7 +143,7 @@ for exp_name, model_path in EXPS.items():
     # Evaluate model
     with torch.no_grad():
         for data in tqdm(loader):
-            video, label = data if len(data) >= 2 else (None, None)
+            video, label = data[:2] # if len(data) >= 2 else (None, None)
             if video is None:
                 raise TypeError(f"Unexpected data type returned from dataset. Expected tuple, got {type(data)}.")
             
@@ -169,6 +169,8 @@ for exp_name, model_path in EXPS.items():
 
     # Save results to CSV inside the experiment folder
     exp_dir = args.base_dir if single_experiment else os.path.join(args.base_dir, exp_name)
+    
+    
     metrics_df = pd.DataFrame([metrics_data])
     metrics_df.to_csv(os.path.join(exp_dir, f"{args.dataset_mode}_metrics_results.csv"), index=False)
 

@@ -64,6 +64,7 @@ class VideoModel(L.LightningModule):
         self.train_acc = Accuracy(task='multiclass', num_classes=num_classes, average='macro')
         self.f1_train = F1Score(task='multiclass', num_classes=num_classes, average='macro')
 
+        self.topk_val_acc = Accuracy(task='multiclass', num_classes=num_classes, average='macro', top_k=5)
         self.val_acc = Accuracy(task='multiclass', num_classes=num_classes, average='macro')
         self.f1_val = F1Score(task='multiclass', num_classes=num_classes, average='macro')
         self.recall = Recall(task='multiclass', num_classes=num_classes, average='macro')
@@ -77,7 +78,7 @@ class VideoModel(L.LightningModule):
         
     def training_step(self, batch, batch_idx):
         x, y = batch[0], batch[1]
-        
+
         if self.args.get("mixup", False):
             x, y_ = self.mixup(x, y)
             outputs = self.model(x)
@@ -85,33 +86,77 @@ class VideoModel(L.LightningModule):
         else:
             outputs = self.model(x, labels=y)
             loss = outputs.loss
-        
-        self.train_acc(outputs.logits, y)
-        self.f1_train(outputs.logits, y)
-        
+
+        # Update metrics
+        self.train_acc.update(outputs.logits, y)
+        self.f1_train.update(outputs.logits, y)
+
+        # Log metrics
         self.log('train_loss', loss, sync_dist=True)
         self.log('train_acc', self.train_acc, sync_dist=True, on_step=False, on_epoch=True)
         self.log('f1_train', self.f1_train, sync_dist=True, on_step=False, on_epoch=True)
-        
+
         return loss
+        
+        # x, y = batch[0], batch[1]
+        
+        # if self.args.get("mixup", False):
+        #     x, y_ = self.mixup(x, y)
+        #     outputs = self.model(x)
+        #     loss = torch.nn.functional.cross_entropy(outputs.logits, y_)
+        # else:
+        #     outputs = self.model(x, labels=y)
+        #     loss = outputs.loss
+        
+        # self.train_acc(outputs.logits, y)
+        # self.f1_train(outputs.logits, y)
+        
+        # self.log('train_loss', loss, sync_dist=True)
+        # self.log('train_acc', self.train_acc, sync_dist=True, on_step=False, on_epoch=True)
+        # self.log('f1_train', self.f1_train, sync_dist=True, on_step=False, on_epoch=True)
+        
+        # return loss
 
     def validation_step(self, batch, batch_idx):
+        
         x, y = batch[0], batch[1]
         outputs = self.model(x, labels=y)
         loss = outputs.loss
-        
-        self.val_acc(outputs.logits, y)
-        self.f1_val(outputs.logits, y)
-        self.recall(outputs.logits, y)
-        self.precision(outputs.logits, y)
-        
+
+        # Update metrics
+        self.val_acc.update(outputs.logits, y)
+        self.f1_val.update(outputs.logits, y)
+        self.recall.update(outputs.logits, y)
+        self.precision.update(outputs.logits, y)
+        self.topk_val_acc.update(outputs.logits, y)
+
+        # Log metrics
         self.log('val_loss', loss, sync_dist=True)
+        self.log('top5_val_acc', self.topk_val_acc, sync_dist=True, on_step=False, on_epoch=True)
         self.log('val_acc', self.val_acc, sync_dist=True, on_step=False, on_epoch=True)
         self.log('f1_val', self.f1_val, sync_dist=True, on_step=False, on_epoch=True)
         self.log('recall', self.recall, sync_dist=True, on_step=False, on_epoch=True)
         self.log('precision', self.precision, sync_dist=True, on_step=False, on_epoch=True)
-        
+
         return loss
+        
+        # x, y = batch[0], batch[1]
+        # outputs = self.model(x, labels=y)
+        # loss = outputs.loss
+        
+        # self.val_acc(outputs.logits, y)
+        # self.f1_val(outputs.logits, y)
+        # self.recall(outputs.logits, y)
+        # self.precision(outputs.logits, y)
+        
+        # self.log('val_loss', loss, sync_dist=True)
+        # self.log('top-5_val_acc', self.topk_val_acc, sync_dist=True, on_step=False, on_epoch=True)
+        # self.log('val_acc', self.val_acc, sync_dist=True, on_step=False, on_epoch=True)
+        # self.log('f1_val', self.f1_val, sync_dist=True, on_step=False, on_epoch=True)
+        # self.log('recall', self.recall, sync_dist=True, on_step=False, on_epoch=True)
+        # self.log('precision', self.precision, sync_dist=True, on_step=False, on_epoch=True)
+        
+        # return loss
     
     def configure_optimizers(self):
         if self.optimizer == 'adamw':
@@ -138,27 +183,39 @@ class VideoModel(L.LightningModule):
         return optimizer
     
     def on_train_epoch_end(self):
-        self.train_acc.compute()
+        # self.train_acc.compute()
+        pass
 
     def on_validation_epoch_end(self):
         
-        val_acc = self.val_acc.compute()
-        f1_val = self.f1_val.compute()
-        recall = self.recall.compute()
-        precision = self.precision.compute()
-        # cm = self.ConfusionMatrix.compute()
+        # val_acc = self.val_acc.compute()
+        # top5_val_acc = self.topk_val_acc.compute()
+        # f1_val = self.f1_val.compute()
+        # recall = self.recall.compute()
+        # precision = self.precision.compute()
+        # # cm = self.ConfusionMatrix.compute()
 
         exp_name = self.hparams['args'].get('exp_name', 'experiment')
         experiment_folder = os.path.join("lightning_logs", exp_name)
 
         metrics_data = {
             "model_name": exp_name,
-            "val_acc": val_acc.item(),
-            "f1_val": f1_val.item(),
-            "recall": recall.item(),
-            "precision": precision.item(),
-            # "confusion_matrix": cm.tolist()
+            "val_acc": self.val_acc.compute().item(),
+            "top5_val_acc": self.topk_val_acc.compute().item(),
+            "f1_val": self.f1_val.compute().item(),
+            "recall": self.recall.compute().item(),
+            "precision": self.precision.compute().item(),
         }
+
+        # metrics_data = {
+        #     "model_name": exp_name,
+        #     "val_acc": val_acc.item(),
+        #     "top5_val_acc": top5_val_acc.item(),
+        #     "f1_val": f1_val.item(),
+        #     "recall": recall.item(),
+        #     "precision": precision.item(),
+        #     # "confusion_matrix": cm.tolist()
+        # }
 
         # Ensure the directory exists
         os.makedirs(experiment_folder, exist_ok=True)

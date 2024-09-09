@@ -1,7 +1,7 @@
 import lightning as L
 from lightning.pytorch.callbacks import ModelCheckpoint, EarlyStopping
 from lightning.pytorch.loggers import TensorBoardLogger
-from dataset import DatasetFactory
+from dataset_v2 import DatasetFactory
 # from transforms import build_transforms
 from transforms import Transforms
 from torch.utils.data import DataLoader
@@ -123,7 +123,16 @@ if __name__ == "__main__":
         mode="min",
     )
 
-    early_stop_callback = EarlyStopping("val_loss", patience=50)
+    top5_checkpoint_callback = ModelCheckpoint(
+        filename="top5_best_model",
+        save_top_k=1,
+        save_last=False,
+        verbose=True,
+        monitor="top5_val_acc",
+        mode="max",
+    )
+
+    early_stop_callback = EarlyStopping("val_loss", patience=50) #implementar patience como args
 
     logger = TensorBoardLogger(save_dir="lightning_logs", name=EXP_NAME)
 
@@ -139,11 +148,13 @@ if __name__ == "__main__":
     )
 
     trainer = L.Trainer(
+        log_every_n_steps=14,
         max_epochs=args.max_epochs,
         devices=args.gpus,
         accelerator="gpu",
         strategy="ddp",
-        callbacks=[checkpoint_callback, early_stop_callback],
+        # callbacks=[checkpoint_callback, top5_checkpoint_callback, early_stop_callback],
+        callbacks=[checkpoint_callback, top5_checkpoint_callback, early_stop_callback],
         logger=logger,
     )
 

@@ -191,6 +191,7 @@ class TestDatasets(Dataset):
         self.idx_to_class = {i: label for label, i in self.class_to_idx.items()}
         
     def __len__(self):
+        print(len(self.df))
         return len(self.df)
 
     def __getitem__(self, idx):
@@ -250,7 +251,7 @@ class WLASLDataset(Dataset):
         self.split = split
         self.transforms = transforms
         
-        self.annotations = pd.read_json(self.dir / "nslt_2000.json").T
+        self.annotations = pd.read_json(self.dir / "nslt_100.json").T
         self.annotations["id"] = self.annotations.index
         self.annotations.reset_index(drop=True, inplace=True)
         self.annotations["label"] = self.annotations.action.apply(lambda x: x[0])

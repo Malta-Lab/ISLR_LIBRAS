@@ -1,5 +1,5 @@
 #!/bin/bash
-# videomae on WLASL dataset with pre-train on kinetics and no augmentations 10x (1 per seed)
+# videomae on WLASL dataset with 1k classes pre-train on kinetics and no augmentations 10x (1 per seed)
 
 SEEDS_FILE="./seeds.txt"
 
@@ -11,13 +11,13 @@ i=1
 while IFS= read -r seed
 do
     # Define the experiment name and log file
-    experiment_name="WLASL_pretrain_seed_$seed"
+    experiment_name="WLASL_1k_classes_pretrain_seed_$seed"
     log_file="./logs/${experiment_name}.log"
 
     # Check if both best.ckpt and last.ckpt files exist in the version_X/checkpoints directories
     both_ckpt_files_exist=false
     for dir in /mnt/G-SSD/BRACIS/BRACIS-2024/lightning_logs/wlasl/base/WLASL_pretrain_seed_"${seed}"/version_*/checkpoints; do
-        if [ -f "$dir/best_model.ckpt" ] && [ -f "$dir/last.ckpt" ]; then
+        if [ -f "$dir/1k_classes_best_model.ckpt" ] && [ -f "$dir/last.ckpt" ]; then
             both_ckpt_files_exist=true
             break
         fi
@@ -29,10 +29,10 @@ do
         echo "Running ${experiment_name} $i with seed $seed" | tee -a "$log_file"
 
         # Run the training script
-        CUDA_VISIBLE_DEVICES=1,3,4,5 python train.py \
+        CUDA_VISIBLE_DEVICES=1,3 python train.py \
             -ptm "MCG-NJU/videomae-base-finetuned-kinetics" \
             -w 16 \
-            --gpus 4 \
+            --gpus 2 \
             -sched "plateau" \
             -lr 0.0001 \
             --data_path "/mnt/G-SSD/BRACIS/WLASL_tensors_32" \

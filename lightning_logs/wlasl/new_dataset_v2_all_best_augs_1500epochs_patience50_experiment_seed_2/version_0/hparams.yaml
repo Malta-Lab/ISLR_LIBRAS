@@ -1,0 +1,37 @@
+args:
+  batch_size: 16
+  data_path: ../WLASL_tensors_32
+  dataset: wlasl
+  exp_name: new_dataset_v2_all_best_augs_1500epochs_patience50_experiment_seed_2
+  finetune: null
+  frames: 16
+  freeze: false
+  gpus: 4
+  learning_rate: 0.0001
+  max_epochs: 1500
+  mixup: true
+  mixup_alpha: 0.25
+  n_samples_per_class: null
+  no_pretrain: false
+  optimizer: adamw
+  pretrained_model: MCG-NJU/videomae-base-finetuned-kinetics
+  random_sample: true
+  scheduler: plateau
+  seed: 2
+  specific_classes: null
+  transforms:
+  - normalize
+  - color_jitter
+  - random_rotation
+  - random_perspective
+  transforms_parameters:
+  - color_jitter_0.5_0.5_0.5_0.5
+  - random_rotation_0.35
+  - random_perspective_0.5
+  workers: 4
+cache_dir: /mnt/G-SSD/BRACIS/BRACIS-2024/cache
+lr: 0.0001
+model_name: MCG-NJU/videomae-base-finetuned-kinetics
+num_classes: 2000
+optimizer: adamw
+scheduler: plateau

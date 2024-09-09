@@ -1,0 +1,31 @@
+args:
+  batch_size: 16
+  data_path: /mnt/G-SSD/BRACIS/WLASL_tensors_32
+  dataset: wlasl
+  exp_name: WLASL_100_classes_e-7_pretrain_seed_42
+  finetune: null
+  frames: 16
+  freeze: false
+  gpus: 1
+  learning_rate: 1.0e-07
+  max_epochs: 200
+  mixup: false
+  mixup_alpha: 1.0
+  n_samples_per_class: null
+  no_pretrain: false
+  optimizer: adamw
+  pretrained_model: MCG-NJU/videomae-base-finetuned-kinetics
+  random_sample: false
+  scheduler: plateau
+  seed: 42
+  specific_classes: null
+  transforms:
+  - normalize
+  transforms_parameters: null
+  workers: 16
+cache_dir: /mnt/G-SSD/BRACIS/BRACIS-2024/cache
+lr: 1.0e-07
+model_name: MCG-NJU/videomae-base-finetuned-kinetics
+num_classes: 100
+optimizer: adamw
+scheduler: plateau

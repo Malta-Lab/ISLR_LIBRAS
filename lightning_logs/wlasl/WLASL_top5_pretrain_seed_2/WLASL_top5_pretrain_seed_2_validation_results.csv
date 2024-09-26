@@ -1,2 +1,0 @@
-model_name,val_acc,top5_val_acc,f1_val,recall,precision
-WLASL_top5_pretrain_seed_2,0.0,0.003666666802018881,0.0,0.0,0.0

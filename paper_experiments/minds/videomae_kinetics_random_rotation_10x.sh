@@ -4,7 +4,8 @@
 SEEDS_FILE="./seeds.txt"
 
 # Define array of random rotation values (degrees)
-random_rotation=("0.05" "0.1" "0.15" "0.2" "0.25" "0.3" "0.35" "0.4" "0.45" "0.5")
+
+random_rotation=("5" "10" "15" "20" "25" "30" "35" "40" "45" "50")
 
 # Ensure log directory exists
 mkdir -p ./logs
@@ -17,8 +18,8 @@ do
     do
         # Check if both best.ckpt and last.ckpt files exist in the version_X/checkpoints directories
         both_ckpt_files_exist=false
-        for dir in /mnt/G-SSD/BRACIS/BRACIS-2024/lightning_logs/random_rotation/random_rotation/videomae_kinetics_random_rotation_"${rr}"_"${seed}"/version_*/checkpoints; do
-            if [ -f "$dir/best_model.ckpt" ] && [ -f "$dir/last.ckpt" ]; then
+        for dir in /mnt/G-SSD/BRACIS/BRACIS-2024/lightning_logs/minds/augs/random_rotation/videomae_kinetics_random_rotation_"${rr}"_"${seed}"/version_*/checkpoints; do
+            if [ -f "$dir/best_model.ckpt" ] && [ -f "$dir/top5_best_model.ckpt" ]; then
                 both_ckpt_files_exist=true
                 break
             fi
@@ -31,9 +32,11 @@ do
             echo "Experiment ${experiment_name} already executed. Skipping..." | tee -a "$log_file"
         else
             echo "Experiment ${experiment_name} not executed. Running..." | tee -a "$log_file"
-            CUDA_VISIBLE_DEVICES=4 python train.py \
+            CUDA_VISIBLE_DEVICES=1,3,4,5 python train.py \
                 -ptm "MCG-NJU/videomae-base-finetuned-kinetics" \
-                --gpus 1 \
+                --gpus 4 \
+                -w 16 \
+                -epochs 600 \
                 -sched "plateau" \
                 -lr 0.0001 \
                 --data_path "/mnt/G-SSD/BRACIS/MINDS_tensors_32" \

@@ -1,0 +1,2 @@
+model_name,val_acc,top5_val_acc,f1_val,recall,precision
+videomae_kinetics_random_rotation_35_16,0.9933333396911621,1.0,0.9932184219360352,0.9933333396911621,0.9937499761581421

@@ -26,7 +26,7 @@ if __name__ == "__main__":
     
     # model and training
     parser.add_argument(
-        "-ptm", "--pretrained_model", type=str, default="MCG-NJU/videomae-base"
+        "-ptm", "--pretrained_model", type=str, default="MCG-NJU/videomae-base-finetuned-kinetics", help="Pretrained model", choices=["MCG-NJU/videomae-base-finetuned-kinetics", "google/vivit-b-16x2-kinetics400", "facebook/timesformer-base-finetuned-k400"]
     )
     parser.add_argument("-bs", "--batch_size", type=int, default=16)
     parser.add_argument("-epochs", "--max_epochs", type=int, default=200)
@@ -117,7 +117,7 @@ if __name__ == "__main__":
     checkpoint_callback = ModelCheckpoint(
         filename="best_model",
         save_top_k=1,
-        save_last=True,
+        save_last=False,
         verbose=True,
         monitor="val_loss",
         mode="min",
@@ -127,12 +127,18 @@ if __name__ == "__main__":
         filename="top5_best_model",
         save_top_k=1,
         save_last=False,
-        verbose=True,
+        verbose=False,
         monitor="top5_val_acc",
         mode="max",
     )
 
-    early_stop_callback = EarlyStopping("val_loss", patience=50) #implementar patience como args
+    early_stop_callback = EarlyStopping( #implementar patience como args
+        monitor = "val_loss",
+        patience=20,
+        min_delta=1e-4,
+        verbose=False,
+        mode="min",
+    ) 
 
     logger = TensorBoardLogger(save_dir="lightning_logs", name=EXP_NAME)
 

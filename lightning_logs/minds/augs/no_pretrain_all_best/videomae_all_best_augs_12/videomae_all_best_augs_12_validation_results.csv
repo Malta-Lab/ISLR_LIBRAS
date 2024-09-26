@@ -1,0 +1,2 @@
+model_name,val_acc,top5_val_acc,f1_val,recall,precision
+videomae_all_best_augs_12,0.0520833358168602,0.25,0.009969605132937431,0.0520833358168602,0.0055250003933906555

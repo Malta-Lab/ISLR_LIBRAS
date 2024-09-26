@@ -254,7 +254,7 @@ class WLASLDataset(Dataset):
         self.labels2idx = self.__load_labels(self.dir / "wlasl_class_list.txt")
         self.idx2labels = {v: k for k, v in self.labels2idx.items()}
 
-        self.annotations = pd.read_json(self.dir / "nslt_100.json").T
+        self.annotations = pd.read_json(self.dir / "nslt_1000.json").T
         self.annotations["id"] = self.annotations.index
         self.annotations.reset_index(drop=True, inplace=True)
 
@@ -262,9 +262,9 @@ class WLASLDataset(Dataset):
         
         self.annotations["label"] = self.annotations["action"].apply(lambda x: self.labels2idx.get(x[0], "Unknown"))
 
-        self.missing = self.__get_missing()
+        # self.missing = self.__get_missing()
 
-        self.annotations = self.annotations[~self.annotations['id'].isin(self.missing)]
+        # self.annotations = self.annotations[~self.annotations['id'].isin(self.missing)]
         
         if self.split == "train":
             self.annotations = self.annotations[self.annotations["subset"] != "test"]
@@ -290,16 +290,16 @@ class WLASLDataset(Dataset):
                 
         return labels2idx
     
-    def __get_missing(self):
-        """
-        Read the missing instances from the missing.txt file and ensure they are zero-padded.
-        """
-        missing = []
-        missing_file = self.dir / "missing.txt"
-        if missing_file.exists():
-            with open(missing_file, 'r') as file:
-                missing = [f'{int(line.strip()):05}' for line in file if line.strip()]
-        return missing
+    # def __get_missing(self):
+    #     """
+    #     Read the missing instances from the missing.txt file and ensure they are zero-padded.
+    #     """
+    #     missing = []
+    #     missing_file = self.dir / "new_missing.txt"
+    #     if missing_file.exists():
+    #         with open(missing_file, 'r') as file:
+    #             missing = [f'{int(line.strip()):05}' for line in file if line.strip()]
+    #     return missing
 
     def __len__(self):
         return len(self.annotations)

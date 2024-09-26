@@ -1,2 +1,0 @@
-model_name,val_acc,top5_val_acc,f1_val,recall,precision
-new_dataset_v2_all_best_augs_1500epochs_patience50_experiment_seed_2,0.02225000038743019,0.03191666677594185,0.020588096231222153,0.02225000038743019,0.020883332937955856

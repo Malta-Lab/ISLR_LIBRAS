@@ -6,7 +6,7 @@ from dataset import *
 from transforms import Transforms
 from models import VideoModel
 from tqdm import tqdm
-from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score, confusion_matrix
+from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score, confusion_matrix, top_k_accuracy_score
 import pandas as pd
 import glob
 
@@ -61,11 +61,12 @@ class ResultAnalyzer:
 
     def compute_metrics(self):
         accuracy = accuracy_score(self.true, self.preds, normalize=True)
+        topk_accuracy = top_k_accuracy_score(self.true, self.preds, k=5)
         f1 = f1_score(self.true, self.preds, average="macro")
         precision = precision_score(self.true, self.preds, average="macro")
         recall = recall_score(self.true, self.preds, average="macro")
         cm = confusion_matrix(self.true, self.preds)
-        return accuracy, f1, precision, recall, cm
+        return accuracy, topk_accuracy, f1, precision, recall, cm
 
 def load_dataset_v3(mode="val", model_name=None):
     if mode == "minds_val":
@@ -156,11 +157,12 @@ for exp_name, model_path in EXPS.items():
 
     # Analyze results
     analyzer = ResultAnalyzer(true_labels, predictions)
-    acc, f1, precision, recall, cm = analyzer.compute_metrics()
+    acc, topk, f1, precision, recall, cm = analyzer.compute_metrics()
 
     metrics_data = {
         "model_name": exp_name,
         f"acc_{args.dataset_mode}": acc,
+        f"top5_acc_{args.dataset_mode}": topk,
         f"f1_{args.dataset_mode}": f1,
         f"precision_{args.dataset_mode}": precision,
         f"recall_{args.dataset_mode}": recall,
@@ -179,7 +181,7 @@ for exp_name, model_path in EXPS.items():
 # If there's more than one experiment, calculate mean and std across all experiments
 if not single_experiment:
     mean_std_data = {}
-    metrics_keys = [f"acc_{args.dataset_mode}", f"f1_{args.dataset_mode}", f"precision_{args.dataset_mode}", f"recall_{args.dataset_mode}"]
+    metrics_keys = [f"acc_{args.dataset_mode}", f"top5_acc_{args.dataset_mode}",f"f1_{args.dataset_mode}", f"precision_{args.dataset_mode}", f"recall_{args.dataset_mode}"]
 
     for key in metrics_keys:
         values = [res[key] for res in all_results.values()]

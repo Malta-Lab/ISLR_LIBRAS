@@ -1,26 +1,16 @@
 import os
-import sys
+import glob
 
-def delete_ckpt_files(folder_path):
-    # Walk through the directory structure
-    for root, dirs, files in os.walk(folder_path):
-        # Check if "WLASL" is in the name of the current directory
-        if "WLASL" in os.path.basename(root):
-            continue  # Skip this directory and its subdirectories
+# Path to the 'minds' folder
+folder = '/mnt/G-SSD/BRACIS/BRACIS-2024/lightning_logs/minds/augs/mixup'  # Replace with the actual path to your 'minds' folder
 
-        for file in files:
-            if file.endswith(".ckpt"):
-                file_path = os.path.join(root, file)
-                try:
-                    os.remove(file_path)
-                    print(f"Deleted: {file_path}")
-                except Exception as e:
-                    print(f"Error deleting {file_path}: {e}")
+# Use glob to find all .ckpt files recursively within the 'minds' folder
+ckpt_files = glob.glob(os.path.join(folder, '**', '*.ckpt'), recursive=True)
 
-if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        print("Usage: python delete_ckpt.py <folder_path>")
-        sys.exit(1)
-
-    folder_path = sys.argv[1]
-    delete_ckpt_files(folder_path)
+# Loop through and remove all found .ckpt files
+for ckpt_file in ckpt_files:
+    try:
+        os.remove(ckpt_file)
+        print(f"Deleted: {ckpt_file}")
+    except OSError as e:
+        print(f"Error deleting {ckpt_file}: {e}")

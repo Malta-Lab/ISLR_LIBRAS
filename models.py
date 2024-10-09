@@ -30,12 +30,7 @@ class VideoModel(L.LightningModule):
             self.model = AutoModelForVideoClassification.from_config(
                 AutoConfig.from_pretrained(model_name, num_labels=num_classes, local_files_only=True)
             )
-        elif self.args.get('finetune', None):
-            print("="*40)
-            print("="*15, "Finetuning model", "="*15)
-            self.load_from_checkpoint(self.args['finetune'])
-            self.model.model.classifier = torch.nn.Linear(self.model.model.classifier.in_features, num_classes)
-            print("="*40)
+        
         else:
             self.model = AutoModelForVideoClassification.from_pretrained(
                 model_name,
@@ -73,6 +68,17 @@ class VideoModel(L.LightningModule):
         
         self.save_hyperparameters()
 
+    def load_pretrained_weights(self, checkpoint_path):
+        """Load pretrained weights from a checkpoint."""
+        checkpoint = torch.load(checkpoint_path, map_location=lambda storage, loc: storage)
+        state_dict = checkpoint['state_dict']
+        # Remove 'model.' prefix if present
+        new_state_dict = {}
+        for k, v in state_dict.items():
+            new_key = k
+            new_state_dict[new_key] = v
+        self.model.load_state_dict(new_state_dict, strict=False)
+    
     def forward(self, x):
         return self.model(x)
         
@@ -170,7 +176,7 @@ class VideoModel(L.LightningModule):
 
         if self.scheduler:
             if self.scheduler == 'plateau':
-                sched = optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.1, patience=10, verbose=True)
+                sched = optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.1, patience=20, verbose=True)
             elif self.scheduler == 'step':
                 sched = optim.lr_scheduler.StepLR(optimizer, step_size=50, gamma=0.1)
             elif self.scheduler == 'linearlr':

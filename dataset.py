@@ -247,64 +247,81 @@ class SlovoDataset(Dataset):
 
 class WLASLDataset(Dataset):
     def __init__(self, dir, split="train", transforms=None):
-        self.dir = Path(dir)
+        self.dir = Path(dir)  
         self.split = split
         self.transforms = transforms
         
-        self.annotations = pd.read_json(self.dir / "nslt_100.json").T
+        self.labels2idx = self.__load_labels(self.dir / "wlasl_class_list.txt")
+        self.idx2labels = {v: k for k, v in self.labels2idx.items()}
+
+        self.annotations = pd.read_json(self.dir / "nslt_2000.json").T
         self.annotations["id"] = self.annotations.index
         self.annotations.reset_index(drop=True, inplace=True)
-        self.annotations["label"] = self.annotations.action.apply(lambda x: x[0])
 
-        self.missing = self.__get_missing()
-
-        # print(len(self.annotations))
+        self.annotations['id'] = self.annotations['id'].apply(lambda x: f'{int(x):05}')
         
-        # remove missing indexes from annotations
-        self.annotations = self.annotations[~self.annotations['id'].isin(self.missing)]
-        # print(len(self.annotations))
+        self.annotations["label"] = self.annotations["action"].apply(lambda x: self.labels2idx.get(x[0], "Unknown"))
 
+        # self.missing = self.__get_missing()
+
+        # self.annotations = self.annotations[~self.annotations['id'].isin(self.missing)]
+        
         if self.split == "train":
             self.annotations = self.annotations[self.annotations["subset"] != "test"]
             print(f"Train size: {len(self.annotations)}")
         else:
             self.annotations = self.annotations[self.annotations["subset"] == "test"]
             print(f"Test size: {len(self.annotations)}")
-            
-        # for videos with if number length < 5 digits, adds 0s in the beggingin to sum up to 5 digits
-        self.annotations['id'] = self.annotations['id'].apply(lambda x: f'{x:05}')  
-            
-            
-        self.labels2idx = self.__getlabels()
+
+        self.classes = list(self.labels2idx.values())
         
-        self.classes = list(self.labels2idx.keys())
+
+    def __load_labels(self, class_list_path):
+        """
+        Load the label-to-index mapping from the wlasl_class_list.txt file.
+        """
+        labels2idx = {}
+        with open(class_list_path, 'r') as file:
+            for line in file:
+                parts = line.strip().split()
+                label_id = int(parts[0])
+                label = parts[1]
+                labels2idx[label_id] = label
+                
+        return labels2idx
+    
+    # def __get_missing(self):
+    #     """
+    #     Read the missing instances from the missing.txt file and ensure they are zero-padded.
+    #     """
+    #     missing = []
+    #     missing_file = self.dir / "new_missing.txt"
+    #     if missing_file.exists():
+    #         with open(missing_file, 'r') as file:
+    #             missing = [f'{int(line.strip()):05}' for line in file if line.strip()]
+    #     return missing
 
     def __len__(self):
         return len(self.annotations)
-    
-    def __get_missing(self):
-        missing = []
-        files = [int(i.split('.')[0]) for i in os.listdir(self.dir / "videos")]
-        for filename in self.annotations["id"].values:
-            if filename not in files:
-                missing.append(filename)
-
-        return missing
-    
-    def __getlabels(
-        self,
-    ):
-        labels = list(self.annotations["label"].unique())
-        labels.sort()
-
-        return {label: i for i, label in enumerate(labels)}
 
     def __getitem__(self, idx):
-        instance = self.annotations.iloc[idx]           
         
-        video = torch.load(self.dir / "videos" / f"{instance['id']}.pt")
+        row = self.annotations.iloc[idx]
+        video_id = row["id"]
+        
+        label = row["label"]
+        
+        label_idx = self.idx2labels[label]
+        
+        video_path = self.dir / "videos" / f"{video_id}.pt"
+        
+        try:
+            video = torch.load(video_path)
+            
+        except FileNotFoundError:
+            raise FileNotFoundError(f"Video file {video_path} not found.")
         
         if self.transforms:
             video = self.transforms(video)
 
-        return video, self.labels2idx[instance["label"]]
+        return video, label_idx 

@@ -1,0 +1,2 @@
+model_name,val_acc,top5_val_acc,f1_val,recall,precision
+videomae_kinetics_mixup_40_79,1.0,1.0,1.0,1.0,1.0

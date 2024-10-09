@@ -51,6 +51,9 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
+    args_dict = vars(args)
+
+
     if args.frames != 32 and args.frames != 16:
         raise ValueError("Frames must be 16 or 32")
     if args.frames == 16 and args.pretrained_model == "google/vivit-b-16x2-kinetics400":
@@ -134,8 +137,8 @@ if __name__ == "__main__":
 
     early_stop_callback = EarlyStopping( #implementar patience como args
         monitor = "val_loss",
-        patience=20,
-        min_delta=1e-4,
+        patience=100,
+        # min_delta=1e-4,
         verbose=False,
         mode="min",
     ) 
@@ -150,11 +153,20 @@ if __name__ == "__main__":
         lr=args.learning_rate,
         optimizer=args.optimizer,
         scheduler=args.scheduler,
-        args=vars(args),
+        args=args_dict,
     )
+    
+    if args.finetune:
+        print("="*30)
+        print("="*15, "Finetuning model", "="*15)
+        model.load_pretrained_weights(args.finetune)
+        # Adjust the classifier to have the correct number of classes
+        classifier_in_features = model.model.classifier.in_features
+        model.model.classifier = torch.nn.Linear(classifier_in_features, len(train_dataset.classes))
+        print("="*40)
 
     trainer = L.Trainer(
-        log_every_n_steps=14,
+        log_every_n_steps=11,
         max_epochs=args.max_epochs,
         devices=args.gpus,
         accelerator="gpu",

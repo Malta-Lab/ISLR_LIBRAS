@@ -1,0 +1,2 @@
+model_name,val_acc,top5_val_acc,f1_val,recall,precision
+agressive_splits_videomae_kinetics_color_jitter_0.05_42,0.9708333015441895,1.0,0.9713106155395508,0.9708333015441895,0.9749489426612854

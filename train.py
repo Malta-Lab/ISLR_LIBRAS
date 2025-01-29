@@ -1,7 +1,7 @@
 import lightning as L
 from lightning.pytorch.callbacks import ModelCheckpoint, EarlyStopping
 from lightning.pytorch.loggers import TensorBoardLogger
-from dataset_v2 import DatasetFactory
+from dataset import DatasetFactory
 # from transforms import build_transforms
 from transforms import Transforms
 from torch.utils.data import DataLoader
@@ -29,14 +29,14 @@ if __name__ == "__main__":
         "-ptm", "--pretrained_model", type=str, default="MCG-NJU/videomae-base-finetuned-kinetics", help="Pretrained model", choices=["MCG-NJU/videomae-base-finetuned-kinetics", "google/vivit-b-16x2-kinetics400", "facebook/timesformer-base-finetuned-k400"]
     )
     parser.add_argument("-bs", "--batch_size", type=int, default=16)
-    parser.add_argument("-epochs", "--max_epochs", type=int, default=200)
+    parser.add_argument("-epochs", "--max_epochs", type=int, default=900)
     parser.add_argument("-gpus", "--gpus", type=int, default=1)
     parser.add_argument("-lr", "--learning_rate", type=float, default=1e-5)
     parser.add_argument("-opt", "--optimizer", type=str, default="adamw")
     parser.add_argument("-sched", "--scheduler", type=str, default=None)
     
     # data 
-    parser.add_argument("--data_path", type=str, default="../MINDS_tensors")
+    parser.add_argument("--data_path", type=str, default="../MINDS_tensors_32")
     parser.add_argument("--specific_classes", type=str, nargs="+", default=None)
     parser.add_argument("--dataset", type=str, default="minds")
     parser.add_argument("--n_samples_per_class", type=int, default=None)
@@ -74,12 +74,12 @@ if __name__ == "__main__":
     #     dataset_name=args.dataset,
     # )
     transforms = Transforms(
-        args.transforms.copy(),
+        transforms_list=(args.transforms.copy() if args.transforms else []),
         resize_dims=(224, 224),
         sample_frames=args.frames,
         random_sample=args.random_sample,
         dataset_name=args.dataset,
-        transforms_parameters=args.transforms_parameters,
+        transforms_parameters=(args.transforms_parameters.copy() if args.transforms_parameters else None),
     )
 
     dataset_factory = DatasetFactory()
@@ -104,7 +104,7 @@ if __name__ == "__main__":
             random_sample=False,
             dataset_name=args.dataset,
         ),
-        split="test",
+        split="val",
         specific_classes=args.specific_classes,
     )
 
@@ -135,9 +135,9 @@ if __name__ == "__main__":
         mode="max",
     )
 
-    early_stop_callback = EarlyStopping( #implementar patience como args
+    early_stop_callback = EarlyStopping( #todo: implementar patience como args
         monitor = "val_loss",
-        patience=100,
+        patience=30,
         # min_delta=1e-4,
         verbose=False,
         mode="min",

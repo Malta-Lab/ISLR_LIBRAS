@@ -66,12 +66,14 @@ class Transforms:
             "random_rotation",
         ]
 
-        
+        print(transforms_list)
         # check transforms
+        if transforms_list is None:
+            transforms_list = []
         for transform in transforms_list:
             if transform not in self.available_transforms:
                 raise ValueError(f"Transform {transform} not available")
-                    
+        
         self.transforms_list = transforms_list
         self.resize_dims = resize_dims
         self.sample_frames = sample_frames
@@ -110,6 +112,9 @@ class Transforms:
         # normalization
         if "normalize" in self.transforms_list:
             transforms.append(self.__normalization())
+        
+        if "kinetics_normalize" in self.transforms_list:
+            transforms.append(Normalize((0.45, 0.45, 0.45), (0.225, 0.225, 0.225)))
             
         # orientation transforms
         if "random_horizontal_flip" in self.transforms_list:
@@ -138,7 +143,7 @@ class Transforms:
             return Normalize((118.4939, 118.4997, 118.5007), (57.2457, 57.2454, 57.2461))
         if self.dataset_name == "slovo":
             return Normalize((143.2916, 133.0764, 128.7852), (62.1262, 64.2752, 62.8632))
-        if self.dataset_name == "test":
+        if self.dataset_name == "malta_test":
             return Normalize((110.0589, 104.0907, 119.5019), (53.9639, 47.5653, 51.7986))
         if self.dataset_name == "wlasl":
             return Normalize((108.7010, 109.7283, 103.2872), (60.1688, 54.0494, 43.9858))

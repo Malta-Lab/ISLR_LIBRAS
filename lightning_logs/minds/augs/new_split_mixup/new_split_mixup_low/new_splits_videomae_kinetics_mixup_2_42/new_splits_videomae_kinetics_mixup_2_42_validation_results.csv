@@ -1,0 +1,2 @@
+model_name,val_acc,top5_val_acc,f1_val,recall,precision
+new_splits_videomae_kinetics_mixup_2_42,0.988194465637207,1.0,0.9881527423858643,0.988194465637207,0.9894444346427917

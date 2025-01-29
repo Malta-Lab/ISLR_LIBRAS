@@ -6,7 +6,7 @@ SEEDS_FILE="./seeds.txt"
 mu="0.25"
 cj="0.5"
 rp="0.5"
-rr="0.35"
+rr="40"
 
 # Ensure log directory exists
 mkdir -p ./logs
@@ -17,21 +17,21 @@ while IFS= read -r seed
 do
     # Check if both best.ckpt and last.ckpt files exist in the version_X/checkpoints directories
     both_ckpt_files_exist=false
-    for dir in /mnt/G-SSD/BRACIS/BRACIS-2024/lightning_logs/videomae_all_best_augs_"${seed}"/version_*/checkpoints; do
+    for dir in /mnt/G-SSD/BRACIS/BRACIS-2024/lightning_logs/new_videomae_all_best_augs_"${seed}"/version_*/checkpoints; do
         if [ -f "$dir/best_model.ckpt" ] && [ -f "$dir/top5_best_model.ckpt" ]; then
             both_ckpt_files_exist=true
             break
         fi
     done
 
-    experiment_name="videomae_all_best_augs_${seed}"
+    experiment_name="new_videomae_all_best_augs_${seed}"
     log_file="./logs/${experiment_name}.log"
     
     if [ "$both_ckpt_files_exist" = true ]; then
         echo "Experiment ${experiment_name} already executed. Skipping..." | tee -a "$log_file"
     else
         echo "Experiment ${experiment_name} not executed. Running..." | tee -a "$log_file"
-        CUDA_VISIBLE_DEVICES=1,3,4,5 python train.py \
+        CUDA_VISIBLE_DEVICES=0,1,2,3 python train.py \
             -ptm "MCG-NJU/videomae-base-finetuned-kinetics" \
             --gpus 4 \
             --no_pretrain \

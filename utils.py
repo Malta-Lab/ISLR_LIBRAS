@@ -43,3 +43,7 @@ def set_seed(seed=42):
     torch.manual_seed(seed)
     torch.cuda.manual_seed(seed)
     torch.backends.cudnn.deterministic = True
+
+CLASSES2IDX = {
+    'acontecer': 0, 'aluno': 1, 'amarelo': 2, 'america': 3, 'aproveitar': 4, 'bala': 5, 'banco': 6, 'banheiro': 7, 'barulho': 8, 'cinco': 9, 'conhecer': 10, 'espelho': 11, 'esquina': 12, 'filho': 13, 'maca': 14, 'medo': 15, 'ruim': 16, 'sapo': 17, 'vacina': 18, 'vontade': 19
+}

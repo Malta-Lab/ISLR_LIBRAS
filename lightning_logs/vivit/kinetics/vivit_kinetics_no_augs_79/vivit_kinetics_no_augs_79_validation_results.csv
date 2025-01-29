@@ -1,0 +1,2 @@
+model_name,val_acc,top5_val_acc,f1_val,recall,precision
+vivit_kinetics_no_augs_79,0.9785714149475098,1.0,0.9792250394821167,0.9785714149475098,0.9830153584480286

@@ -17,24 +17,24 @@ do
     for rr in "${random_rotation[@]}"
     do
         
+        experiment_name="videomae_kinetics_random_rotation_${rr}_${seed}"
+        log_file="./logs/${experiment_name}.log"
+
         csv_exists=false
-        experiment_folder="/mnt/G-SSD/BRACIS/BRACIS-2024/lightning_logs/minds/augs/random_rotation/videomae_kinetics_random_rotation_${rr}_${seed}"
-        if [ -f "${experiment_folder}/test_metrics_results.csv" ]; then
+        experiment_folder="/mnt/G-SSD/BRACIS/BRACIS-2024/lightning_logs/minds/augs/new_split_random_rotation/new_splits_videomae_kinetics_random_rotation_${rr}_${seed}"
+        if [ -f "${experiment_folder}/${experiment_name}_validation_results.csv" ]; then
             csv_exists=true
         fi
 
-        experiment_name="videomae_kinetics_random_rotation_${rr}_${seed}"
-        log_file="./logs/${experiment_name}.log"
-        
         if [ "$csv_exists" = true ]; then
             echo "Experiment ${experiment_name} already executed. Skipping..." | tee -a "$log_file"
         else
             echo "Experiment ${experiment_name} not executed. Running..." | tee -a "$log_file"
-            CUDA_VISIBLE_DEVICES=1,2,3,4,5 python train_v2.py \
+            CUDA_VISIBLE_DEVICES=5 python train.py \
                 -ptm "MCG-NJU/videomae-base-finetuned-kinetics" \
-                --gpus 5 \
-                -w 16 \
-                -epochs 1200 \
+                --gpus 1 \
+                -w 8 \
+                -epochs 900 \
                 -sched "plateau" \
                 -lr 0.0001 \
                 --data_path "/mnt/G-SSD/BRACIS/MINDS_tensors_32" \

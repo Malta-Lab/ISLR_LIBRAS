@@ -1,0 +1,2 @@
+model_name,val_acc,top5_val_acc,f1_val,recall,precision
+new_videomae_kinetics_all_best_augs_seed_42,0.9930952787399292,1.0,0.9930915832519531,0.9930952787399292,0.9933035373687744

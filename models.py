@@ -28,7 +28,7 @@ class VideoModel(L.LightningModule):
         # Load the model
         if self.args.get('no_pretrain', False):
             self.model = AutoModelForVideoClassification.from_config(
-                AutoConfig.from_pretrained(model_name, num_labels=num_classes, local_files_only=True)
+                AutoConfig.from_pretrained(model_name, num_labels=num_classes, local_files_only=False)
             )
         
         else:
@@ -85,7 +85,8 @@ class VideoModel(L.LightningModule):
     def training_step(self, batch, batch_idx):
         x, y = batch[0], batch[1]
 
-        if self.args.get("mixup", False):
+        if self.args.get("mixup", False) and x.shape[0] > 1:
+            
             x, y_ = self.mixup(x, y)
             outputs = self.model(x)
             loss = torch.nn.functional.cross_entropy(outputs.logits, y_)

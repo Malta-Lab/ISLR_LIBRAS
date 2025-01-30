@@ -8,4 +8,4 @@ socorro_deus.ipynb
 train_old.py
 models_old.py
 metrics_evaluation.ipynb
-/lightning_logs/
+/lightning_logs

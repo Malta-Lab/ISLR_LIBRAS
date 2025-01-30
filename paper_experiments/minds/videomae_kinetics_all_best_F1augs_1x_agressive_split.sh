@@ -6,7 +6,12 @@ seed="42"
 # Ensure log directory exists
 mkdir -p ./logs
 
-experiment_name="agressive_splits_videomae_kinetics_no_augmentations_${seed}"
+mu="XX"
+cj="0.15"
+rp="0.4"
+rr="35"
+
+experiment_name="agressive_splits_videomae_all_best_F1augs_${seed}"
 log_file="./logs/${experiment_name}.log"
 
 echo "Experiment ${experiment_name} not executed. Running..." | tee -a "$log_file"
@@ -23,7 +28,10 @@ CUDA_VISIBLE_DEVICES=3,5 python train.py \
     --frames 16 \
     --random_sample \
     --dataset "minds" \
-    -t "normalize" \
+    -t "normalize" "color_jitter" "random_perspective" "random_rotation" \
+    -tp "color_jitter_${cj}_${cj}_${cj}_${cj}" "random_perspective_${rp}" "random_rotation_${rr}" \
+    --mixup \
+    --mixup_alpha "$mu" \
     --seed "$seed" | tee -a "$log_file"
 
 echo "All specified experiments completed." | tee -a "$log_file"

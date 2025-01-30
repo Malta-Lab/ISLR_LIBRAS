@@ -10,11 +10,11 @@ experiment_name="agressive_splits_videomae_no_augmentations_${seed}"
 log_file="./logs/${experiment_name}.log"
 
 echo "Experiment ${experiment_name} not executed. Running..." | tee -a "$log_file"
-CUDA_VISIBLE_DEVICES=0 python train.py \
+CUDA_VISIBLE_DEVICES=3,5 python train.py \
     -ptm "MCG-NJU/videomae-base-finetuned-kinetics" \
-    --gpus 1 \
+    --gpus 2 \
     --no_pretrain \
-    -w 16 \
+    -w 32 \
     -bs 16 \
     -epochs 900 \
     -sched "plateau" \

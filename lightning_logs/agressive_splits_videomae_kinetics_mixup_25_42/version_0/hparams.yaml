@@ -2,17 +2,17 @@ args:
   batch_size: 16
   data_path: /mnt/G-SSD/BRACIS/MINDS_tensors_32
   dataset: minds
-  exp_name: agressive_splits_videomae_no_augmentations_42
+  exp_name: agressive_splits_videomae_kinetics_mixup_25_42
   finetune: null
   frames: 16
   freeze: false
-  gpus: 2
+  gpus: 1
   learning_rate: 0.0001
   max_epochs: 900
-  mixup: false
-  mixup_alpha: 1.0
+  mixup: true
+  mixup_alpha: 25.0
   n_samples_per_class: null
-  no_pretrain: true
+  no_pretrain: false
   optimizer: adamw
   pretrained_model: MCG-NJU/videomae-base-finetuned-kinetics
   random_sample: true
@@ -22,7 +22,7 @@ args:
   transforms:
   - normalize
   transforms_parameters: null
-  workers: 32
+  workers: 16
 cache_dir: /mnt/G-SSD/BRACIS/BRACIS-2024/cache
 lr: 0.0001
 model_name: MCG-NJU/videomae-base-finetuned-kinetics

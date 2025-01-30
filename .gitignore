@@ -10,3 +10,6 @@ models_old.py
 metrics_evaluation.ipynb
 /lightning_logs/*/version_*/events.out.tfevents.*
 lightning_logs/videomae_kinetics_all_best_F1augs_seed_12_OLD_SPLIT_TESTING/version_0/events.out.tfevents.1738242743.motox.499845.0
+lightning_logs/agressive_splits_videomae_kinetics_mixup_25_42/version_0/events.out.tfevents.1738251837.motox.763323.0
+lightning_logs/videomae_kinetics_all_best_F1augs_seed_12_OLD_SPLIT_TESTING/version_0/events.out.tfevents.1738242743.motox.499845.0
+lightning_logs/agressive_splits_videomae_kinetics_mixup_25_42/agressive_splits_videomae_kinetics_mixup_25_42_validation_results.csv

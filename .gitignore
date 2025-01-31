@@ -7,4 +7,11 @@ flagged
 socorro_deus.ipynb
 train_old.py
 models_old.py
-metrics_evaluation.ipynb
+create_results_test.py
+dataset_test_2.py
+delete_cktp.py
+demo.py
+evaluation.ipynb
+models_test.py
+train_test.py
+transforms_test.py

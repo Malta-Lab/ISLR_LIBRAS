@@ -15,4 +15,4 @@ evaluation.ipynb
 models_test.py
 train_test.py
 transforms_test.py
-results/*
+/results

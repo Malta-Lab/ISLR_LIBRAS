@@ -2,7 +2,7 @@ args:
   batch_size: 16
   data_path: /mnt/G-SSD/BRACIS/MINDS_tensors_32
   dataset: minds
-  exp_name: agressive_splits_videomae_kinetics_mixup_5_42
+  exp_name: agressive_splits_videomae_kinetics_mixup_35_42
   finetune: null
   frames: 16
   freeze: false
@@ -10,7 +10,7 @@ args:
   learning_rate: 0.0001
   max_epochs: 900
   mixup: true
-  mixup_alpha: 5.0
+  mixup_alpha: 35.0
   n_samples_per_class: null
   no_pretrain: false
   optimizer: adamw

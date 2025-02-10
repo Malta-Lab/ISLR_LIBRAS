@@ -1,0 +1,2 @@
+model_name,val_acc,top5_val_acc,f1_val,recall,precision
+videomae_kinetics_freeze_no_augs_42,0.9542856812477112,1.0,0.9540908932685852,0.9542856812477112,0.956978440284729

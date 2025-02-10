@@ -1,0 +1,31 @@
+args:
+  batch_size: 8
+  data_path: /mnt/G-SSD/BRACIS/MINDS_tensors_32
+  dataset: minds
+  exp_name: timesformer_kinetics_no_augs_12
+  finetune: null
+  frames: 16
+  freeze: false
+  gpus: 5
+  learning_rate: 0.0001
+  max_epochs: 200
+  mixup: false
+  mixup_alpha: 1.0
+  n_samples_per_class: null
+  no_pretrain: false
+  optimizer: adamw
+  pretrained_model: facebook/timesformer-base-finetuned-k400
+  random_sample: true
+  scheduler: plateau
+  seed: 12
+  specific_classes: null
+  transforms:
+  - normalize
+  transforms_parameters: null
+  workers: 16
+cache_dir: /mnt/G-SSD/BRACIS/BRACIS-2024/cache
+lr: 0.0001
+model_name: facebook/timesformer-base-finetuned-k400
+num_classes: 20
+optimizer: adamw
+scheduler: plateau

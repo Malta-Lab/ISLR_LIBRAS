@@ -1,0 +1,2 @@
+model_name,val_acc,top5_val_acc,f1_val,recall,precision
+new_videomae_kinetics_all_best_augs_rr5_seed_89,0.9897618293762207,1.0,0.9897536039352417,0.9897618293762207,0.9906250238418579

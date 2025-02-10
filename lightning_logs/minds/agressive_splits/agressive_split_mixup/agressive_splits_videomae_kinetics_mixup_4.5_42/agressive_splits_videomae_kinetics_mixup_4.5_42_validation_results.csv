@@ -1,0 +1,2 @@
+model_name,val_acc,top5_val_acc,f1_val,recall,precision
+agressive_splits_videomae_kinetics_mixup_4.5_42,0.9683712124824524,1.0,0.9682186841964722,0.9683712124824524,0.9719998836517334

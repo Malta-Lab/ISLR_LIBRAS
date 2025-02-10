@@ -1,0 +1,31 @@
+args:
+  batch_size: 4
+  data_path: /mnt/G-SSD/BRACIS/MINDS_tensors_32
+  dataset: minds
+  exp_name: vivit_no_augs_24
+  finetune: null
+  frames: 32
+  freeze: false
+  gpus: 5
+  learning_rate: 0.0001
+  max_epochs: 200
+  mixup: false
+  mixup_alpha: 1.0
+  n_samples_per_class: null
+  no_pretrain: true
+  optimizer: adamw
+  pretrained_model: google/vivit-b-16x2-kinetics400
+  random_sample: false
+  scheduler: plateau
+  seed: 24
+  specific_classes: null
+  transforms:
+  - normalize
+  transforms_parameters: null
+  workers: 16
+cache_dir: /mnt/G-SSD/BRACIS/BRACIS-2024/cache
+lr: 0.0001
+model_name: google/vivit-b-16x2-kinetics400
+num_classes: 20
+optimizer: adamw
+scheduler: plateau

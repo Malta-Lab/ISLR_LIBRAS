@@ -1,0 +1,37 @@
+args:
+  batch_size: 16
+  data_path: /mnt/G-SSD/BRACIS/MINDS_tensors_32
+  dataset: minds
+  exp_name: teste_all_best_augs_rr0.35_seed_79
+  finetune: null
+  frames: 16
+  freeze: false
+  gpus: 1
+  learning_rate: 0.0001
+  max_epochs: 900
+  mixup: true
+  mixup_alpha: 0.25
+  n_samples_per_class: null
+  no_pretrain: false
+  optimizer: adamw
+  pretrained_model: MCG-NJU/videomae-base-finetuned-kinetics
+  random_sample: true
+  scheduler: plateau
+  seed: 79
+  specific_classes: null
+  transforms:
+  - normalize
+  - color_jitter
+  - random_perspective
+  - random_rotation
+  transforms_parameters:
+  - color_jitter_0.4_0.4_0.4_0.4
+  - random_perspective_0.5
+  - random_rotation_0.35
+  workers: 16
+cache_dir: /mnt/G-SSD/BRACIS/BRACIS-2024/cache
+lr: 0.0001
+model_name: MCG-NJU/videomae-base-finetuned-kinetics
+num_classes: 20
+optimizer: adamw
+scheduler: plateau

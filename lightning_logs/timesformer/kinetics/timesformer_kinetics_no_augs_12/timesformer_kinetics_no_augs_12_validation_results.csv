@@ -1,0 +1,2 @@
+model_name,val_acc,top5_val_acc,f1_val,recall,precision
+timesformer_kinetics_no_augs_12,0.9821428060531616,1.0,0.9824833869934082,0.9821428060531616,0.9857842922210693

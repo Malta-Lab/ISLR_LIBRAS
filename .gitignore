@@ -1,0 +1,12 @@
+*cache*
+/logs
+experiments.ipynb
+*checkpoints/
+mussi.ipynb
+create_results_test.py
+delete_cktp.py
+demo.py
+evaluation.ipynb
+/results
+/bash_files
+*_optimized.py

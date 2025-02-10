@@ -1,0 +1,33 @@
+args:
+  batch_size: 16
+  data_path: ../MINDS_tensors_32
+  dataset: minds
+  exp_name: videomae_kinetics_random_perspective_0.15_42
+  finetune: null
+  frames: 16
+  freeze: false
+  gpus: 1
+  learning_rate: 0.0001
+  max_epochs: 1000
+  mixup: false
+  mixup_alpha: 1.0
+  n_samples_per_class: null
+  no_pretrain: false
+  optimizer: adamw
+  pretrained_model: MCG-NJU/videomae-base-finetuned-kinetics
+  random_sample: true
+  scheduler: plateau
+  seed: 42
+  specific_classes: null
+  transforms:
+  - random_perspective
+  - normalize
+  transforms_parameters:
+  - random_perspective_0.15
+  workers: 4
+cache_dir: ./cache
+lr: 0.0001
+model_name: MCG-NJU/videomae-base-finetuned-kinetics
+num_classes: 20
+optimizer: adamw
+scheduler: plateau

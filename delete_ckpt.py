@@ -2,7 +2,7 @@ import os
 import glob
 
 # Path to the 'minds' folder
-folder = '/mnt/G-SSD/BRACIS/BRACIS-2024/lightning_logs/minds/augs/mixup'  # Replace with the actual path to your 'minds' folder
+folder = '/mnt/G-SSD/BRACIS/BRACIS-2024/lightning_logs/vivit'  # Replace with the actual path to your 'minds' folder
 
 # Use glob to find all .ckpt files recursively within the 'minds' folder
 ckpt_files = glob.glob(os.path.join(folder, '**', '*.ckpt'), recursive=True)

@@ -29,14 +29,14 @@ if __name__ == "__main__":
         "-ptm", "--pretrained_model", type=str, default="MCG-NJU/videomae-base-finetuned-kinetics", help="Pretrained model", choices=["MCG-NJU/videomae-base-finetuned-kinetics", "google/vivit-b-16x2-kinetics400", "facebook/timesformer-base-finetuned-k400"]
     )
     parser.add_argument("-bs", "--batch_size", type=int, default=16)
-    parser.add_argument("-epochs", "--max_epochs", type=int, default=900)
+    parser.add_argument("-epochs", "--max_epochs", type=int, default=200)
     parser.add_argument("-gpus", "--gpus", type=int, default=1)
     parser.add_argument("-lr", "--learning_rate", type=float, default=1e-5)
     parser.add_argument("-opt", "--optimizer", type=str, default="adamw")
     parser.add_argument("-sched", "--scheduler", type=str, default=None)
     
     # data 
-    parser.add_argument("--data_path", type=str, default="../MINDS_tensors_32")
+    parser.add_argument("--data_path", type=str, default="../MINDS_tensors")
     parser.add_argument("--specific_classes", type=str, nargs="+", default=None)
     parser.add_argument("--dataset", type=str, default="minds")
     parser.add_argument("--n_samples_per_class", type=int, default=None)
@@ -74,12 +74,12 @@ if __name__ == "__main__":
     #     dataset_name=args.dataset,
     # )
     transforms = Transforms(
-        transforms_list=(args.transforms.copy() if args.transforms else []),
+        args.transforms.copy(),
         resize_dims=(224, 224),
         sample_frames=args.frames,
         random_sample=args.random_sample,
         dataset_name=args.dataset,
-        transforms_parameters=(args.transforms_parameters.copy() if args.transforms_parameters else None),
+        transforms_parameters=args.transforms_parameters,
     )
 
     dataset_factory = DatasetFactory()
@@ -104,7 +104,7 @@ if __name__ == "__main__":
             random_sample=False,
             dataset_name=args.dataset,
         ),
-        split="val",
+        split="test",
         specific_classes=args.specific_classes,
     )
 
@@ -113,6 +113,8 @@ if __name__ == "__main__":
         batch_size=args.batch_size,
         num_workers=args.workers,
         shuffle=True,
+        pin_memory=True,
+        persistent_workers=True,
     )
     val_loader = DataLoader(val_dataset, batch_size=args.batch_size, num_workers=4)
 
@@ -135,9 +137,9 @@ if __name__ == "__main__":
         mode="max",
     )
 
-    early_stop_callback = EarlyStopping( #todo: implementar patience como args
+    early_stop_callback = EarlyStopping( #implementar patience como args
         monitor = "val_loss",
-        patience=30,
+        patience=100,
         # min_delta=1e-4,
         verbose=False,
         mode="min",
@@ -166,7 +168,7 @@ if __name__ == "__main__":
         print("="*40)
 
     trainer = L.Trainer(
-        log_every_n_steps=11,
+        log_every_n_steps=20,
         max_epochs=args.max_epochs,
         devices=args.gpus,
         accelerator="gpu",
@@ -174,6 +176,6 @@ if __name__ == "__main__":
         # callbacks=[checkpoint_callback, top5_checkpoint_callback, early_stop_callback],
         callbacks=[checkpoint_callback, top5_checkpoint_callback, early_stop_callback],
         logger=logger,
-    )
+        )
 
     trainer.fit(model, train_dataloaders=train_loader, val_dataloaders=val_loader)

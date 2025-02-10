@@ -16,10 +16,11 @@ do
     log_file="./logs/${experiment_name}.log"
 
     echo "Running experiment ${experiment_name}..." | tee -a "$log_file"
-    CUDA_VISIBLE_DEVICES=4 python train.py \
+    CUDA_VISIBLE_DEVICES=2 python train.py \
         -ptm "MCG-NJU/videomae-base-finetuned-kinetics" \
-        -w 8 \
+        -w 4 \
         --gpus 1 \
+        -epochs 900 \
         -sched "plateau" \
         -lr 0.0001 \
         --data_path "/mnt/G-SSD/BRACIS/MINDS_tensors_32" \

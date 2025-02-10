@@ -1,5 +1,0 @@
-CUDA_VISIBLE_DEVICES=1,2 python train.py -ptm "MCG-NJU/videomae-base-finetuned-kinetics" --gpus 2 -sched "plateau" -lr 0.0001 --data_path "../MINDS_tensors_32" --exp_name "no_pretrain_videomae" -t "color_jitter" "random_perspective"  "random_horizontal_flip" "gaussian_blur" "normalize" --frames 16 --random_sample -bs 16
-
-CUDA_VISIBLE_DEVICES=1,2 python train.py -ptm "google/vivit-b-16x2-kinetics400" --gpus 2 -sched "plateau" -lr 0.0001 --data_path "../MINDS_tensors_32" --exp_name "no_pretrain_vivit" -t "color_jitter" "random_perspective"  "random_horizontal_flip" "gaussian_blur" "normalize" --frames 32 --random_sample -bs 4
-
-CUDA_VISIBLE_DEVICES=1,2 python train.py -ptm "facebook/timesformer-base-finetuned-k400" --gpus 2 -sched "plateau" -lr 0.0001 --data_path "../MINDS_tensors_32" --exp_name "no_pretrain_timesformer" -t "color_jitter" "random_perspective"  "random_horizontal_flip" "gaussian_blur" "normalize" --frames 16 --random_sample -bs 8

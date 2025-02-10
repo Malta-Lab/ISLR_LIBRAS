@@ -1,2 +1,0 @@
-# CUDA_VISIBLE_DEVICES=0 python train.py -ptm "MCG-NJU/videomae-base" --gpus 1 -sched "plateau" -lr 0.0001
-CUDA_VISIBLE_DEVICES=0 python train.py -ptm "MCG-NJU/videomae-base" --gpus 1 -sched "plateau" -lr 0.0001 --data_path "../MINDS_tensors_all_frames" --exp_name "test_transforms" -t "random_perspective"  "random_horizontal_flip" "gaussian_blur" "normalize" --frames 16 --random_sample

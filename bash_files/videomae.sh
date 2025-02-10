@@ -1,7 +1,0 @@
-# CUDA_VISIBLE_DEVICES=0 python train.py -ptm "MCG-NJU/videomae-base" --gpus 1 -sched "plateau" -lr 0.0001 --data_path "../MINDS_tensors_32" --exp_name "video_mae_sample_from_32" -t "color_jitter" "random_perspective"  "random_horizontal_flip" "gaussian_blur" "normalize" --frames 16 --random_sample
-
-# CUDA_VISIBLE_DEVICES=0 python train.py -ptm "MCG-NJU/videomae-base" --gpus 1 -sched "plateau" -lr 0.0001 --data_path "../MINDS_tensors_all_frames" --exp_name "video_mae_sample_from_all" -t "color_jitter" "random_perspective"  "random_horizontal_flip" "gaussian_blur" "normalize" --frames 16 --random_sample
-
-CUDA_VISIBLE_DEVICES=0 python train.py -ptm "MCG-NJU/videomae-base-finetuned-kinetics" --gpus 1 -sched "plateau" -lr 0.0001 --data_path "../MINDS_tensors_32" --exp_name "video_mae_kinetics_sample_from_32" -t "color_jitter" "random_perspective"  "random_horizontal_flip" "gaussian_blur" "normalize" --frames 16 --random_sample
-
-CUDA_VISIBLE_DEVICES=0 python train.py -ptm "MCG-NJU/videomae-base-finetuned-kinetics" --gpus 1 -sched "plateau" -lr 0.0001 --data_path "../MINDS_tensors_all_frames" --exp_name "video_mae_kinetics_sample_from_all" -t "color_jitter" "random_perspective"  "random_horizontal_flip" "gaussian_blur" "normalize" --frames 16 --random_sample

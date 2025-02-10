@@ -9,3 +9,4 @@ demo.py
 evaluation.ipynb
 /results
 /bash_files
+*_optimized.py

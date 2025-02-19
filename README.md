@@ -1,3 +1,29 @@
+# Data downloading instructions
+
+All data from MALTA-LIBRAS dataset was webscraped using XXX (beautiful soup?)
+
+Dictionaries within MALTA-LIBRAS to webscrape videos:
+* INES V2: http://www.acessibilidadebrasil.org.br/libras/ (no longer available)
+* Corpus Libras: https://corpuslibras.ufsc.br/ (on our annotations file, Corpus Libras is referred to as UFSC)
+* UFV: https://sistemas.cead.ufv.br/capes/dicionario/
+* Youtube: path pro zip pra mandar pro Lucas: /mnt/E-SSD/mussi/LIBRAS_datasets/LIBRAS_videos/data/datasets/youtube.zip
+* V-LIBRASIL: https://libras.cin.ufpe.br/ (on our annotations file V-LIBRAS is referred to as UFPE)
+
+To download the remaining videos for the dictionaries INES V3 (Acessibilidades 3), UFSC (SignBank), Spread the Sign and USP, one can use scripts and .csv's from this repository:
+https://github.com/ashileybianca/video-Signs-LIBRAS.git
+
+* INES V3: http://www.acessibilidadebrasil.org.br/libras_3/
+* SignBank: https://signbank.libras.ufsc.br/pt (on our annotattions, SignBank is referred as UFSC_V2)
+* Spread the Sign: https://www.spreadthesign.com/pt.br/search/
+* USP: https://edisciplinas.usp.br/mod/glossary/view.php?id=197645
+
+- The annotations for the MALTA-LIBRAS full dataset is the 'glossary.csv' file under "dataset_intersections" folder.
+- The annotations for the subset of MALTA-LIBRAS used in our experiments is the 'matched_labels_with_tensors.csv' file.
+- SLOVO dataset download: https://github.com/hukenovs/slovo.git
+- WLASL full dataset download (without missing video files): https://www.kaggle.com/datasets/utsavk02/wlasl-complete
+
+
+
 Experiments for LIBRAS ISLR task using MINDS, MALTA-LIBRAS, WLASL and SLOVO datasets.
 
 - 'requirements.txt' contains the necessary requirements to run our codes.

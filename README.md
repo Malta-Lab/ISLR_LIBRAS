@@ -1,16 +1,18 @@
 # Data downloading instructions
 
-All data from MALTA-LIBRAS dataset was webscraped using XXX (beautiful soup?)
+Due to data policies we are unable to provide direct links to download the videos for our dataset, even though all videos are publicly available.
 
 Sources for each dictionary within MALTA-LIBRAS to webscrape videos from:
+
 * INES V2: http://www.acessibilidadebrasil.org.br/libras/ (no longer available)
 * Corpus Libras: https://corpuslibras.ufsc.br/ (on our annotations file, Corpus Libras is referred to as UFSC)
 * UFV: https://sistemas.cead.ufv.br/capes/dicionario/
-* Youtube: path pro zip pra mandar pro Lucas: /mnt/E-SSD/mussi/LIBRAS_datasets/LIBRAS_videos/data/datasets/youtube.zip
 * V-LIBRASIL: https://libras.cin.ufpe.br/ (on our annotations file V-LIBRAS is referred to as UFPE)
+* For YouTube videos, we provide a direct link to download from:
+https://brpucrs-my.sharepoint.com/:u:/g/personal/10087904_pucrs_br/EUFBuEiJ67BFqtFJm5kTPAYBXuaJma8QXgrPwora6s0S-g?e=7kmnzm
 
-To download the remaining videos for the dictionaries INES V3 (Acessibilidades 3), UFSC (SignBank), Spread the Sign and USP, one can use scripts and .csv's from this repository:
-https://github.com/ashileybianca/video-Signs-LIBRAS.git
+
+To download the remaining videos for the dictionaries INES V3 (Acessibilidades 3), UFSC (SignBank), Spread the Sign and USP, one can use the scripts provided in the 'videos_download' folder. These scripts download videos from the following sources:
 
 * INES V3: http://www.acessibilidadebrasil.org.br/libras_3/
 * SignBank: https://signbank.libras.ufsc.br/pt (on our annotattions, SignBank is referred as UFSC_V2)

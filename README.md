@@ -28,7 +28,7 @@ The annotations for the subset of MALTA-LIBRAS used in our experiments is the 'm
 - WLASL full dataset download: https://www.kaggle.com/datasets/utsavk02/wlasl-complete
 
 
-Files and their descriptions:
+## Files and their descriptions:
 
 - 'requirements.txt' contains the necessary requirements to run our codes.
 - 'seeds.txt' contains the set of seeds used for all our experiments, unless specified otherwise (for single-seed experiments we used seed 42).

@@ -4,15 +4,15 @@ Due to data policies we are unable to provide direct links to download the video
 
 Sources for each dictionary within MALTA-LIBRAS to webscrape videos from:
 
-* INES V2: http://www.acessibilidadebrasil.org.br/libras/ (no longer available)
+* INES V2: http://www.acessibilidadebrasil.org.br/libras/ (no longer available, mas achei o .zip q ta num google drive do Nathan, ja baixei e ta na MOTOX, podemos disponibilizar junto com o do Youtube)
 * Corpus Libras: https://corpuslibras.ufsc.br/ (on our annotations file, Corpus Libras is referred to as UFSC)
-* UFV: https://sistemas.cead.ufv.br/capes/dicionario/
+* UFV: https://sistemas.cead.ufv.br/capes/dicionario/ (não consegui fazer webscrape dele, ashley n fez codigo pra essa fonte, mas mesma situação do YouTube e INES V2, o .zip existe e podemos disponibilizar no drive)
 * V-LIBRASIL: https://libras.cin.ufpe.br/ (on our annotations file V-LIBRAS is referred to as UFPE)
 * For YouTube videos, we provide a direct link to download from:
 https://brpucrs-my.sharepoint.com/:u:/g/personal/10087904_pucrs_br/EUFBuEiJ67BFqtFJm5kTPAYBXuaJma8QXgrPwora6s0S-g?e=7kmnzm
 
 
-To download the remaining videos for the dictionaries INES V3 (Acessibilidades 3), UFSC (SignBank), Spread the Sign and USP, one can use the scripts provided in the 'videos_download' folder. These scripts download videos from the following sources:
+To download the remaining videos for the dictionaries INES V3 (Acessibilidades 3), UFSC (SignBank), Spread the Sign and USP, one can use the script provided in the 'videos_download' folder named 'download_videos.py'. The script, along with each source's .csv, downloads videos directly from the sources:
 
 * INES V3: http://www.acessibilidadebrasil.org.br/libras_3/
 * SignBank: https://signbank.libras.ufsc.br/pt (on our annotattions, SignBank is referred as UFSC_V2)

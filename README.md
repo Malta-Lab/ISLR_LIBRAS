@@ -4,9 +4,9 @@ Due to data policies we are unable to provide direct links to download the video
 
 Sources for each dictionary within MALTA-LIBRAS to webscrape videos from:
 
-* INES V2: http://www.acessibilidadebrasil.org.br/libras/ (no longer available, mas achei o .zip q ta num google drive do Nathan, ja baixei e ta na MOTOX, podemos disponibilizar junto com o do Youtube)
+* INES V2: http://www.acessibilidadebrasil.org.br/libras/ (no longer available)
 * Corpus Libras: https://corpuslibras.ufsc.br/ (on our annotations file, Corpus Libras is referred to as UFSC)
-* UFV: https://sistemas.cead.ufv.br/capes/dicionario/ (não consegui fazer webscrape dele, ashley n fez codigo pra essa fonte, mas mesma situação do YouTube e INES V2, o .zip existe e podemos disponibilizar no drive)
+* UFV: https://sistemas.cead.ufv.br/capes/dicionario/ 
 * V-LIBRASIL: https://libras.cin.ufpe.br/ (on our annotations file V-LIBRAS is referred to as UFPE)
 * For YouTube videos, we provide a direct link to download from:
 https://brpucrs-my.sharepoint.com/:u:/g/personal/10087904_pucrs_br/EUFBuEiJ67BFqtFJm5kTPAYBXuaJma8QXgrPwora6s0S-g?e=7kmnzm

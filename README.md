@@ -59,7 +59,7 @@ Annotations:
      --minds dataset_path/MINDS \
      --output_dir tensors/
 
-2. **Build tensors for MALTA_LIBRAS**
+2. **Build tensors for MALTA_LIBRAS**  
    bash
    python vuild_test_dataset_tensors.py \
    --annotations dataset_intersections/glossary.csv \

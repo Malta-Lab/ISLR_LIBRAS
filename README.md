@@ -16,7 +16,6 @@
 - [🛠️ Installation](#installation)  
 - [🚀 Usage](#usage)  
 - [🧰 Scripts Overview](#scripts-overview)  
-- [📁 Directory Structure](#directory-structure)  
 - [📊 Evaluation & Results](#evaluation--results)  
 - [🤝 Contributing](#contributing)  
 - [📄 License](#license)  
@@ -123,24 +122,6 @@ metrics_evaluation.ipynb — analyze experiment results
 dataset_intersections/ — CSVs of overlapping labels
 
 videos_download/ — scripts to fetch videos
-
-## 📁 Directory Structure
-
-ISLR_LIBRAS/
-├── build_tensor_dataset.py
-├── build_test_dataset_tensors.py
-├── create_results.py
-├── train.py
-├── dataset.py
-├── models.py
-├── transforms.py
-├── utils.py
-├── requirements.txt
-├── seeds.txt
-├── metrics_evaluation.ipynb
-├── dataset_intersections/
-├── videos_download/
-└── lightning_logs/
 
 ## 📊 Evaluation & Results
 

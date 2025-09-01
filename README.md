@@ -46,6 +46,9 @@ Annotations:
 - 💡 Full MALTA-LIBRAS glossary: 'dataset_intersections/glossary.csv'  
 - 💡 Experiment subset: 'dataset_intersections/matched_labels_with_tensors.csv'  
 
+All data is also available in tensor format at:
+https://huggingface.co/datasets/MALTA-Lab/MALTA_LIBRAS/tree/main
+
 ---
 
 ## ⚙️ Dataset Preparation
